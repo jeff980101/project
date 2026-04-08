@@ -156,4 +156,41 @@
     </div>
 
 </body>
+    <script>
+        // 非同步函式：負責去讀取 news.json 檔案
+        async function loadNews() {
+            try {
+                // 讀取同一個資料夾底下的 news.json
+                const response = await fetch('news.json');
+                const newsData = await response.json();
+                
+                // 找到網頁中放新聞的 <ul> 標籤
+                const newsList = document.querySelector('.news-list');
+                
+                // 清空原本手寫的假資料
+                newsList.innerHTML = ''; 
+                
+                // 將抓到的新聞一筆一筆塞進網頁裡
+                newsData.forEach(news => {
+                    const li = document.createElement('li');
+                    li.className = 'news-item';
+                    li.innerHTML = `
+                        <a href="${news.link}" target="_blank">${news.title}</a>
+                        <span class="news-date">${news.date}</span>
+                    `;
+                    newsList.appendChild(li);
+                });
+            } catch (error) {
+                console.error("無法載入新聞資料:", error);
+                document.querySelector('.news-list').innerHTML = '<li class="news-item">⚠️ 無法載入最新新聞，請確認 news.json 是否已上傳至 GitHub。</li>';
+            }
+        }
+        
+        // 當網頁載入完成後，自動執行 loadNews 函式
+        window.onload = loadNews;
+    </script>
+</body>
 </html>
+</html>
+
+
