@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>個人財經資訊儀表板</title>
+    <style>
+        /* 基礎樣式設定 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1a365d;
+            color: white;
+            padding: 1rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* 財報佔2份寬度，新聞佔1份 */
+            gap: 2rem;
+        }
+        /* 卡片共用樣式 */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .card h2 {
+            margin-top: 0;
+            color: #2c5282;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 0.5rem;
+        }
+        /* 財報表格樣式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #edf2f7;
+        }
+        th {
+            background-color: #f8fafc;
+            color: #4a5568;
+        }
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+        /* 新聞列表樣式 */
+        .news-list {
+            list-style: none;
+            padding: 0;
+        }
+        .news-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .news-item a {
+            text-decoration: none;
+            color: #2b6cb0;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        .news-item a:hover {
+            text-decoration: underline;
+        }
+        .news-date {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+        
+        /* 響應式設計：手機版時改為單欄式 */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>📈 財經資訊與新聞儀表板</h1>
+    </header>
+
+    <div class="container">
+        <section class="card" id="financial-data">
+            <h2>📊 關注個股財報 (假資料展示)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>股票代號</th>
+                        <th>公司名稱</th>
+                        <th>本益比 (PE)</th>
+                        <th>股東權益報酬率 (ROE)</th>
+                        <th>最新營收 YoY</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2330</td>
+                        <td>台積電</td>
+                        <td>22.5</td>
+                        <td>28.4%</td>
+                        <td><span style="color: green;">+15.2%</span></td>
+                    </tr>
+                    <tr>
+                        <td>2454</td>
+                        <td>聯發科</td>
+                        <td>18.3</td>
+                        <td>20.1%</td>
+                        <td><span style="color: green;">+8.7%</span></td>
+                    </tr>
+                    <tr>
+                        <td>2317</td>
+                        <td>鴻海</td>
+                        <td>12.1</td>
+                        <td>10.5%</td>
+                        <td><span style="color: red;">-2.1%</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="card" id="news-data">
+            <h2>📰 最新財經新聞 (爬蟲資料區)</h2>
+            <ul class="news-list">
+                <li class="news-item">
+                    <a href="#">聯準會宣布維持利率不變，市場預期下半年降息...</a>
+                    <span class="news-date">2026-04-01 10:30</span>
+                </li>
+                <li class="news-item">
+                    <a href="#">台積電法說會即將登場，外資聚焦 AI 晶片產能...</a>
+                    <span class="news-date">2026-04-01 09:15</span>
+                </li>
+                <li class="news-item">
+                    <a href="#">美股收黑！科技股領跌，那斯達克指數下挫 1.5%...</a>
+                    <span class="news-date">2026-03-31 22:45</span>
+                </li>
+            </ul>
+        </section>
+    </div>
+
+</body>
+</html>
