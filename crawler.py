@@ -7,7 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1YydRzMyjaQT8Od3rno-HZui0OiVhP6zt
 """
 
-pip install requests beautifulsoup4
 
 import requests
 from bs4 import BeautifulSoup
