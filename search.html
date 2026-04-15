@@ -72,41 +72,33 @@
             const symbol = `TWSE:${code}`; 
 
             
-            // --- 1. 產生收盤價圖表 (Symbol Overview Widget) ---
-            document.getElementById('tv-chart').innerHTML = ''; // 清空舊圖表
-            const chartScript = document.createElement('script');
-            chartScript.type = 'text/javascript';
-            chartScript.src = 'https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js';
-            chartScript.async = true;
-            chartScript.innerHTML = JSON.stringify({
-              "symbols": [
-                [ symbol + "|1D" ] // 帶入台股代碼與預設日線
-              ],
-              "chartOnly": false,
+            // --- 1. 改用技術分析儀表板 + 完整圖表外連按鈕 ---
+            // 建立外連按鈕
+            document.getElementById('tv-chart').innerHTML = `
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <a href="https://tw.tradingview.com/symbols/${symbol}/" target="_blank" style="text-decoration: none; background-color: #ff9800; color: white; padding: 10px 20px; border-radius: 6px; font-size: 15px; font-weight: bold; display: inline-block; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        📊 前往 TradingView 查看完整 K 線走勢圖
+                    </a>
+                </div>
+                <div id="ta-widget-container" style="height: 280px;"></div>
+            `;
+
+            // 載入技術分析買賣訊號小工具
+            const taScript = document.createElement('script');
+            taScript.type = 'text/javascript';
+            taScript.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+            taScript.async = true;
+            taScript.innerHTML = JSON.stringify({
+              "interval": "1D",
               "width": "100%",
+              "isTransparent": true,
               "height": "100%",
+              "symbol": symbol,
+              "showIntervalTabs": true,
               "locale": "zh_TW",
-              "colorTheme": "light",
-              "autosize": true,
-              "showVolume": true,        // 顯示成交量
-              "showMA": false,
-              "hideDateRanges": false,
-              "hideMarketStatus": false,
-              "hideSymbolLogo": false,
-              "scalePosition": "right",
-              "scaleMode": "Normal",
-              "fontFamily": "-apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif",
-              "fontSize": "10",
-              "noTimeScale": false,
-              "valuesTracking": "1",
-              "changeMode": "price-and-percent",
-              "chartType": "area",       // area=面積圖, line=線圖, candlestick=蠟燭圖
-              "lineWidth": 2,
-              "lineColor": "rgba(41, 98, 255, 1)",
-              "bottomColor": "rgba(41, 98, 255, 0)",
-              "topColor": "rgba(41, 98, 255, 0.3)"
+              "colorTheme": "light"
             });
-            document.getElementById('tv-chart').appendChild(chartScript);
+            document.getElementById('ta-widget-container').appendChild(taScript);
 
             // --- 2. 產生產業類別與基本資料 (Symbol Profile Widget) ---
             document.getElementById('tv-profile').innerHTML = ''; // 清空舊資料
