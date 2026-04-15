@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台股個股資訊儀表板</title>
+    <style>
+        /* 基礎美化設定 */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f4f6f9; color: #333; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .search-box { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
+        input { padding: 12px; font-size: 18px; border: 1px solid #ccc; border-radius: 6px; width: 250px; outline: none; }
+        input:focus { border-color: #0056b3; box-shadow: 0 0 5px rgba(0,86,179,0.3); }
+        button { padding: 12px 24px; font-size: 18px; background-color: #0056b3; color: white; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        button:hover { background-color: #003d82; }
+        
+        /* 版面排版：使用 Grid 讓圖表在左，資料在右 */
+        .dashboard { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .widget-container { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-height: 400px; }
+        .widget-title { margin-top: 0; color: #0056b3; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+        
+        /* 手機版響應式設定 */
+        @media (max-width: 768px) {
+            .dashboard { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>📈 台股個股資訊動態查詢</h1>
+        <p>請輸入台灣股市股票代碼，即可獲取最新圖表與新聞</p>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="stockCode" placeholder="輸入台股代碼 (例: 2330)" value="2330">
+        <button onclick="searchStock()">立即查詢</button>
+    </div>
+
+    <div class="dashboard">
+        <div class="widget-container" id="chart-container">
+            <h3 class="widget-title">技術分析圖表</h3>
+            <div id="tv-chart" style="height: 350px;"></div>
+        </div>
+
+        <div class="widget-container" id="profile-container">
+            <h3 class="widget-title">公司產業與基本資料</h3>
+            <div id="tv-profile" style="height: 350px;"></div>
+        </div>
+    </div>
+
+    <div class="widget-container" id="news-container">
+         <h3 class="widget-title">近期相關新聞</h3>
+         <div id="tv-news" style="height: 400px;"></div>
+    </div>
+
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        function searchStock() {
+            // 取得使用者輸入的代碼，並移除空白
+            const code = document.getElementById('stockCode').value.trim();
+            if(!code) {
+                alert('請輸入股票代碼！');
+                return;
+            }
+            
+            // 將台股代碼轉換為 TradingView 認識的格式 (加上 TWSE: 前綴)
+            const symbol = `TWSE:${code}`; 
+
+            // --- 1. 產生收盤價圖表 (Advanced Chart Widget) ---
+            new TradingView.widget({
+              "autosize": true,
+              "symbol": symbol,
+              "interval": "D", // 預設看日線
+              "timezone": "Asia/Taipei",
+              "theme": "light",
+              "style": "1", // 1=蠟燭圖, 2=線圖, 3=面積圖
+              "locale": "zh_TW",
+              "enable_publishing": false,
+              "hide_top_toolbar": false,
+              "save_image": false,
+              "container_id": "tv-chart"
+            });
+
+            // --- 2. 產生產業類別與基本資料 (Symbol Profile Widget) ---
+            document.getElementById('tv-profile').innerHTML = ''; // 清空舊資料
+            const profileScript = document.createElement('script');
+            profileScript.type = 'text/javascript';
+            profileScript.src = 'https://s3.tradingview.com/external-embedding/embed-widget-symbol-profile.js';
+            profileScript.async = true;
+            profileScript.innerHTML = JSON.stringify({
+              "width": "100%",
+              "height": "100%",
+              "colorTheme": "light",
+              "isTransparent": true,
+              "symbol": symbol,
+              "locale": "zh_TW"
+            });
+            document.getElementById('tv-profile').appendChild(profileScript);
+
+            // --- 3. 產生近期更新新聞 (Timeline Widget) ---
+            document.getElementById('tv-news').innerHTML = ''; // 清空舊資料
+            const newsScript = document.createElement('script');
+            newsScript.type = 'text/javascript';
+            newsScript.src = 'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js';
+            newsScript.async = true;
+            newsScript.innerHTML = JSON.stringify({
+              "feedMode": "symbol",
+              "symbol": symbol,
+              "colorTheme": "light",
+              "isTransparent": true,
+              "displayMode": "regular",
+              "width": "100%",
+              "height": "100%",
+              "locale": "zh_TW"
+            });
+            document.getElementById('tv-news').appendChild(newsScript);
+        }
+
+        // 當網頁一打開時，自動執行一次查詢 (預設帶入 2330 台積電)
+        window.onload = searchStock;
+    </script>
+</body>
+</html>
