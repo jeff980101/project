@@ -5,63 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>財報指標查詢 - 台股分析</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f4f6f9; color: #333; }
-        .header { text-align: center; margin-bottom: 30px; }
+        /* 基礎設定 */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 0; margin: 0; background-color: #f4f6f9; color: #333; }
         
-        /* 搜尋框樣式 */
-        .search-box { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
-        input { padding: 12px; font-size: 18px; border: 1px solid #ccc; border-radius: 6px; width: 250px; outline: none; }
+        /* 頂部導覽列 (整合返回按鈕與搜尋框) */
+        .top-nav { background-color: #fff; padding: 15px 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-left { display: flex; flex-direction: column; gap: 5px; }
+        .nav-left a { text-decoration: none; color: #0056b3; font-weight: bold; font-size: 14px; }
+        .nav-left h1 { margin: 0; font-size: 22px; color: #2c3e50; }
+        
+        .search-box { display: flex; gap: 10px; }
+        input { padding: 10px 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; width: 220px; outline: none; }
         input:focus { border-color: #28a745; box-shadow: 0 0 5px rgba(40,167,69,0.3); }
-        button { padding: 12px 24px; font-size: 18px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        button { padding: 10px 20px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: bold; }
         button:hover { background-color: #218838; }
 
-        .content-container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-height: 600px; }
+        /* 主要排版：左側目錄 + 右側內容 */
+        .layout-container { display: flex; max-width: 1300px; margin: 0 auto; gap: 20px; padding: 0 20px; align-items: flex-start; }
         
-        .section-title { 
-            color: #2c3e50; 
-            border-left: 5px solid #28a745; 
-            padding-left: 15px; 
-            margin-top: 30px;
-            margin-bottom: 20px;
-        }
+        /* 左側目錄列 */
+        .sidebar { width: 220px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 20px; flex-shrink: 0; }
+        .sidebar h3 { margin-top: 0; color: #666; font-size: 16px; margin-bottom: 15px; }
+        .menu-list { list-style: none; padding: 0; margin: 0; }
+        .menu-list li { margin-bottom: 10px; }
+        .menu-list button { width: 100%; text-align: left; padding: 12px 15px; background-color: transparent; color: #333; border: 1px solid transparent; border-radius: 6px; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .menu-list button:hover { background-color: #f0fdf4; color: #28a745; }
+        /* 目前選中的目錄項目樣式 */
+        .menu-list button.active { background-color: #e6f4ea; color: #28a745; border: 1px solid #28a745; font-weight: bold; }
 
-        /* 隱藏預設狀態，搜尋後顯示 */
+        /* 右側主要內容區 */
+        .main-content { flex: 1; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-height: 600px; }
+        .section-title { color: #2c3e50; border-left: 5px solid #28a745; padding-left: 15px; margin-top: 0; margin-bottom: 10px; }
         #financial-results { display: none; }
+        
+        .hint-text { font-size: 14px; color: #e67e22; background-color: #fdf2e9; padding: 10px; border-radius: 5px; margin-bottom: 20px; display: inline-block; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div style="text-align: left; margin-bottom: 15px; max-width: 1200px; margin-left: auto; margin-right: auto;">
-            <a href="index.html" style="text-decoration: none; color: #0056b3; font-weight: bold; font-size: 16px;">⬅️ 返回儀表板首頁</a>
+    <div class="top-nav">
+        <div class="nav-left">
+            <a href="index.html">⬅️ 返回儀表板首頁</a>
+            <h1>📊 企業財報數據</h1>
         </div>
-        <h1>📊 企業財報數據深度查詢</h1>
-        <p>輸入台股代碼，即時獲取三大財務報表數據</p>
+        <div class="search-box">
+            <input type="text" id="stockCode" placeholder="輸入台股代碼 (例: 2330)" value="2330">
+            <button onclick="searchFinancials()">查詢財報</button>
+        </div>
     </div>
 
-    <div class="search-box">
-        <input type="text" id="stockCode" placeholder="輸入台股代碼 (例: 2330)" value="2330">
-        <button onclick="searchFinancials()">查詢財報</button>
-    </div>
-
-    <div class="content-container">
-        <div id="welcome-message" style="text-align: center; color: #7f8c8d; padding-top: 100px;">
-            <h3>🔍 請在上方輸入代碼並點擊查詢</h3>
-            <p>資料包含損益表、資產負債表與現金流量表</p>
+    <div class="layout-container">
+        
+        <div class="sidebar">
+            <h3>📑 財報目錄</h3>
+            <ul class="menu-list">
+                <li><button class="menu-btn active" onclick="changeTab(this, '損益表')">1. 損益表</button></li>
+                <li><button class="menu-btn" onclick="changeTab(this, '資產負債表')">2. 資產負債表</button></li>
+                <li><button class="menu-btn" onclick="changeTab(this, '現金流量表')">3. 現金流量表</button></li>
+            </ul>
         </div>
 
-        <div id="financial-results">
-            <h2 id="display-symbol" style="color: #28a745;">股票代碼：----</h2>
+        <div class="main-content">
             
-            <h3 class="section-title">核心財務報表 (損益、負債、現金流)</h3>
-            <p style="font-size: 14px; color: #666; margin-bottom: 15px;">※ 您可以在下方小工具的選單中自由切換「損益表」、「資產負債表」與「現金流量表」。</p>
-            
-            <div id="tv-financials" style="height: 600px;">
-                </div>
+            <div id="welcome-message" style="text-align: center; color: #7f8c8d; padding-top: 100px;">
+                <h3 style="font-size: 24px;">🔍 請在右上角輸入代碼並點擊查詢</h3>
+                <p>查詢後即可透過左側目錄切換查看各項財務報表</p>
+            </div>
+
+            <div id="financial-results">
+                <h2 id="display-symbol" style="color: #28a745; margin-top: 0;">股票代碼：----</h2>
+                
+                <h3 class="section-title" id="current-table-title">損益表</h3>
+                <div class="hint-text">💡 提示：請在下方小工具的選單中點選對應的標籤以查看詳細數據。</div>
+                
+                <div id="tv-financials" style="height: 550px;">
+                    </div>
+            </div>
+
         </div>
     </div>
 
     <script>
+        let currentSymbol = '';
+
+        // 搜尋按鈕的執行邏輯
         function searchFinancials() {
             const code = document.getElementById('stockCode').value.trim();
             if(!code) {
@@ -69,23 +96,43 @@
                 return;
             }
             
-            const symbol = `TWSE:${code}`;
+            currentSymbol = `TWSE:${code}`;
             
-            // 介面切換
+            // 隱藏歡迎詞，顯示結果區塊
             document.getElementById('welcome-message').style.display = 'none';
             document.getElementById('financial-results').style.display = 'block';
-            document.getElementById('display-symbol').innerText = `目前查看：${code}`;
+            document.getElementById('display-symbol').innerText = `目前查看：台股 ${code}`;
 
-            // 清空舊的小工具
-            document.getElementById('tv-financials').innerHTML = '';
+            // 重新載入小工具
+            loadWidget();
+        }
 
-            // 建立並載入 TradingView 財報小工具
+        // 左側目錄列點擊時的互動邏輯
+        function changeTab(clickedButton, tableName) {
+            // 1. 把所有按鈕的 active 狀態取消
+            const buttons = document.querySelectorAll('.menu-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // 2. 把被點擊的按鈕加上 active 狀態 (變綠色)
+            clickedButton.classList.add('active');
+            
+            // 3. 更改右邊的標題
+            document.getElementById('current-table-title').innerText = tableName;
+            
+            // 如果還沒搜尋，就不載入圖表
+            if (!currentSymbol) return; 
+        }
+
+        // 載入 TradingView 小工具的專屬函式
+        function loadWidget() {
+            const container = document.getElementById('tv-financials');
+            container.innerHTML = ''; // 清空舊資料
+
             const script = document.createElement('script');
             script.type = 'text/javascript';
             script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-financials.js';
             script.async = true;
             
-            // 設定小工具參數
             script.innerHTML = JSON.stringify({
                 "colorTheme": "light",
                 "isTransparent": false,
@@ -93,15 +140,12 @@
                 "displayMode": "regular",
                 "width": "100%",
                 "height": "100%",
-                "symbol": symbol,
+                "symbol": currentSymbol,
                 "locale": "zh_TW"
             });
 
-            document.getElementById('tv-financials').appendChild(script);
+            container.appendChild(script);
         }
-
-        // 預設不自動執行，讓使用者體驗搜尋過程；或你可以取消註解下面這行來預設載入台積電
-        // window.onload = searchFinancials;
     </script>
 </body>
 </html>
