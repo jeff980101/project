@@ -29,6 +29,8 @@ def fetch_stock_financials(stock_id):
 def format_df(df):
     df_t = df.transpose()
     df_t.index = df_t.index.strftime('%Y') # 只保留年份，方便繪圖
+    # 👇 新增這行：將所有空缺資料(NaN)替換為數字 0，確保 JavaScript 能看懂！
+    df_t = df_t.fillna(0)
     return df_t.to_dict(orient='index')
 
 if __name__ == "__main__":
