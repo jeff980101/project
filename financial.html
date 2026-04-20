@@ -3,12 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>財報指標 - 台股分析</title>
+    <title>財報指標查詢 - 台股分析</title>
     <style>
-        /* 基礎美化設定 */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f4f6f9; color: #333; }
         .header { text-align: center; margin-bottom: 30px; }
-        .content-container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-height: 400px;}
+        
+        /* 搜尋框樣式 */
+        .search-box { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
+        input { padding: 12px; font-size: 18px; border: 1px solid #ccc; border-radius: 6px; width: 250px; outline: none; }
+        input:focus { border-color: #28a745; box-shadow: 0 0 5px rgba(40,167,69,0.3); }
+        button { padding: 12px 24px; font-size: 18px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        button:hover { background-color: #218838; }
+
+        .content-container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-height: 600px; }
+        
+        .section-title { 
+            color: #2c3e50; 
+            border-left: 5px solid #28a745; 
+            padding-left: 15px; 
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        /* 隱藏預設狀態，搜尋後顯示 */
+        #financial-results { display: none; }
     </style>
 </head>
 <body>
@@ -17,15 +35,73 @@
         <div style="text-align: left; margin-bottom: 15px; max-width: 1200px; margin-left: auto; margin-right: auto;">
             <a href="index.html" style="text-decoration: none; color: #0056b3; font-weight: bold; font-size: 16px;">⬅️ 返回儀表板首頁</a>
         </div>
-        
-        <h1>📊 公司財報與營運指標</h1>
-        <p>深入分析企業基本面與財務健康狀況</p>
+        <h1>📊 企業財報數據深度查詢</h1>
+        <p>輸入台股代碼，即時獲取三大財務報表數據</p>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="stockCode" placeholder="輸入台股代碼 (例: 2330)" value="2330">
+        <button onclick="searchFinancials()">查詢財報</button>
     </div>
 
     <div class="content-container">
-        <h2>此區塊建設中 🚧</h2>
-        <p>未來將在這裡串接各項財務比率、EPS、營收成長率等關鍵指標...</p>
+        <div id="welcome-message" style="text-align: center; color: #7f8c8d; padding-top: 100px;">
+            <h3>🔍 請在上方輸入代碼並點擊查詢</h3>
+            <p>資料包含損益表、資產負債表與現金流量表</p>
+        </div>
+
+        <div id="financial-results">
+            <h2 id="display-symbol" style="color: #28a745;">股票代碼：----</h2>
+            
+            <h3 class="section-title">核心財務報表 (損益、負債、現金流)</h3>
+            <p style="font-size: 14px; color: #666; margin-bottom: 15px;">※ 您可以在下方小工具的選單中自由切換「損益表」、「資產負債表」與「現金流量表」。</p>
+            
+            <div id="tv-financials" style="height: 600px;">
+                </div>
+        </div>
     </div>
 
+    <script>
+        function searchFinancials() {
+            const code = document.getElementById('stockCode').value.trim();
+            if(!code) {
+                alert('請輸入股票代碼！');
+                return;
+            }
+            
+            const symbol = `TWSE:${code}`;
+            
+            // 介面切換
+            document.getElementById('welcome-message').style.display = 'none';
+            document.getElementById('financial-results').style.display = 'block';
+            document.getElementById('display-symbol').innerText = `目前查看：${code}`;
+
+            // 清空舊的小工具
+            document.getElementById('tv-financials').innerHTML = '';
+
+            // 建立並載入 TradingView 財報小工具
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-financials.js';
+            script.async = true;
+            
+            // 設定小工具參數
+            script.innerHTML = JSON.stringify({
+                "colorTheme": "light",
+                "isTransparent": false,
+                "largeChartUrl": "",
+                "displayMode": "regular",
+                "width": "100%",
+                "height": "100%",
+                "symbol": symbol,
+                "locale": "zh_TW"
+            });
+
+            document.getElementById('tv-financials').appendChild(script);
+        }
+
+        // 預設不自動執行，讓使用者體驗搜尋過程；或你可以取消註解下面這行來預設載入台積電
+        // window.onload = searchFinancials;
+    </script>
 </body>
 </html>
