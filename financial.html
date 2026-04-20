@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>財報指標查詢 - 台股分析</title>
+    <title>個人專屬財報分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 基礎設定 */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 0; margin: 0; background-color: #f4f6f9; color: #333; }
         
-        /* 頂部導覽列 (整合返回按鈕與搜尋框) */
+        /* 頂部導覽列 */
         .top-nav { background-color: #fff; padding: 15px 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .nav-left { display: flex; flex-direction: column; gap: 5px; }
         .nav-left a { text-decoration: none; color: #0056b3; font-weight: bold; font-size: 14px; }
@@ -16,29 +16,28 @@
         
         .search-box { display: flex; gap: 10px; }
         input { padding: 10px 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; width: 220px; outline: none; }
-        input:focus { border-color: #28a745; box-shadow: 0 0 5px rgba(40,167,69,0.3); }
         button { padding: 10px 20px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; font-weight: bold; }
         button:hover { background-color: #218838; }
 
-        /* 主要排版：左側目錄 + 右側內容 */
+        /* 版面配置 */
         .layout-container { display: flex; max-width: 1300px; margin: 0 auto; gap: 20px; padding: 0 20px; align-items: flex-start; }
         
-        /* 左側目錄列 */
+        /* 左側目錄 */
         .sidebar { width: 220px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 20px; flex-shrink: 0; }
         .sidebar h3 { margin-top: 0; color: #666; font-size: 16px; margin-bottom: 15px; }
         .menu-list { list-style: none; padding: 0; margin: 0; }
         .menu-list li { margin-bottom: 10px; }
         .menu-list button { width: 100%; text-align: left; padding: 12px 15px; background-color: transparent; color: #333; border: 1px solid transparent; border-radius: 6px; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .menu-list button:hover { background-color: #f0fdf4; color: #28a745; }
-        /* 目前選中的目錄項目樣式 */
         .menu-list button.active { background-color: #e6f4ea; color: #28a745; border: 1px solid #28a745; font-weight: bold; }
 
-        /* 右側主要內容區 */
-        .main-content { flex: 1; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-height: 600px; }
-        .section-title { color: #2c3e50; border-left: 5px solid #28a745; padding-left: 15px; margin-top: 0; margin-bottom: 10px; }
-        #financial-results { display: none; }
+        /* 右側圖表區 */
+        .main-content { flex: 1; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-height: 500px; }
+        .section-title { color: #2c3e50; border-left: 5px solid #28a745; padding-left: 15px; margin-top: 0; margin-bottom: 20px; }
         
-        .hint-text { font-size: 14px; color: #e67e22; background-color: #fdf2e9; padding: 10px; border-radius: 5px; margin-bottom: 20px; display: inline-block; }
+        /* 讓圖表隨容器縮放 */
+        .chart-container { position: relative; height: 500px; width: 100%; }
+        
+        #error-msg { color: #e74c3c; font-weight: bold; display: none; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -46,106 +45,149 @@
     <div class="top-nav">
         <div class="nav-left">
             <a href="index.html">⬅️ 返回儀表板首頁</a>
-            <h1>📊 企業財報數據</h1>
+            <h1>📈 專屬財報圖表分析</h1>
         </div>
         <div class="search-box">
-            <input type="text" id="stockCode" placeholder="輸入台股代碼 (例: 2330)" value="2330">
-            <button onclick="searchFinancials()">查詢財報</button>
+            <input type="text" id="stockCode" placeholder="輸入追蹤清單代碼 (例: 2330)" value="2330">
+            <button onclick="searchFinancials()">查詢</button>
         </div>
     </div>
 
     <div class="layout-container">
-        
         <div class="sidebar">
             <h3>📑 財報目錄</h3>
             <ul class="menu-list">
-                <li><button class="menu-btn active" onclick="changeTab(this, '損益表')">1. 損益表</button></li>
-                <li><button class="menu-btn" onclick="changeTab(this, '資產負債表')">2. 資產負債表</button></li>
-                <li><button class="menu-btn" onclick="changeTab(this, '現金流量表')">3. 現金流量表</button></li>
+                <li><button class="menu-btn active">1. 損益表 (營收/淨利)</button></li>
+                <li><button class="menu-btn" style="color:#aaa; cursor:not-allowed;" title="需擴充 Python 爬蟲以支援">2. 資產負債表 (建置中)</button></li>
+                <li><button class="menu-btn" style="color:#aaa; cursor:not-allowed;" title="需擴充 Python 爬蟲以支援">3. 現金流量表 (建置中)</button></li>
             </ul>
         </div>
 
         <div class="main-content">
+            <h2 id="display-symbol" style="color: #28a745; margin-top: 0;">載入資料中...</h2>
+            <h3 class="section-title">年度營收與獲利趨勢</h3>
             
-            <div id="welcome-message" style="text-align: center; color: #7f8c8d; padding-top: 100px;">
-                <h3 style="font-size: 24px;">🔍 請在右上角輸入代碼並點擊查詢</h3>
-                <p>查詢後即可透過左側目錄切換查看各項財務報表</p>
+            <div id="error-msg"></div>
+            
+            <div class="chart-container">
+                <canvas id="financialChart"></canvas>
             </div>
-
-            <div id="financial-results">
-                <h2 id="display-symbol" style="color: #28a745; margin-top: 0;">股票代碼：----</h2>
-                
-                <h3 class="section-title" id="current-table-title">損益表</h3>
-                <div class="hint-text">💡 提示：請在下方小工具的選單中點選對應的標籤以查看詳細數據。</div>
-                
-                <div id="tv-financials" style="height: 550px;">
-                    </div>
-            </div>
-
         </div>
     </div>
 
     <script>
-        let currentSymbol = '';
+        let chartInstance = null;
+        let financialData = null;
 
-        // 搜尋按鈕的執行邏輯
+        // 1. 網頁載入時，立刻去抓取 GitHub 上的 JSON 檔案
+        async function loadData() {
+            try {
+                // 加上時間戳記防止瀏覽器快取舊資料
+                const response = await fetch('financial_data.json?' + new Date().getTime());
+                if (!response.ok) throw new Error("找不到檔案");
+                
+                financialData = await response.json();
+                console.log("✅ 成功讀取資料庫:", financialData);
+                
+                // 預設畫出輸入框裡的股票
+                searchFinancials(); 
+            } catch (error) {
+                document.getElementById('error-msg').innerText = "⚠️ 無法載入 financial_data.json，請確認 GitHub Actions 是否已成功產出檔案。";
+                document.getElementById('error-msg').style.display = "block";
+            }
+        }
+
+        // 2. 畫圖表的核心功能
+        function renderChart(symbol) {
+            if (!financialData) return;
+
+            const errorMsg = document.getElementById('error-msg');
+            const stockData = financialData[symbol];
+            
+            // 檢查該股票是否在你的清單中
+            if (!stockData) {
+                errorMsg.innerText = `⚠️ 抱歉，找不到 ${symbol} 的資料！請確認它是否在你的 Python 追蹤清單內。`;
+                errorMsg.style.display = "block";
+                return;
+            } else {
+                errorMsg.style.display = "none";
+            }
+
+            // 更新畫面標題
+            document.getElementById('display-symbol').innerText = `目前查看：${stockData.name || symbol} (${symbol})`;
+
+            // 整理 X 軸與 Y 軸的資料
+            const incomeStmt = stockData.income_statement;
+            // 取出所有年份並從小到大排序 (例如：2020, 2021, 2022, 2023)
+            const years = Object.keys(incomeStmt).sort(); 
+            
+            // 抓出每年對應的「總營收」與「淨利」，如果遇到沒資料的年份預設為 0
+            const revenues = years.map(y => incomeStmt[y]["Total Revenue"] || 0);
+            const netIncomes = years.map(y => incomeStmt[y]["Net Income"] || 0);
+
+            const ctx = document.getElementById('financialChart').getContext('2d');
+
+            // 如果畫布上已經有圖表了，必須先清除舊的才能畫新的
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            // 使用 Chart.js 畫圖
+            chartInstance = new Chart(ctx, {
+                type: 'bar', // 主圖表類型為長條圖
+                data: {
+                    labels: years, // X軸標籤 (年份)
+                    datasets: [
+                        {
+                            label: '總營收 (Total Revenue)',
+                            data: revenues,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)', // 藍色半透明
+                            borderColor: 'rgb(54, 162, 235)',
+                            borderWidth: 1,
+                            order: 2 // 數字越大圖層越下面
+                        },
+                        {
+                            label: '淨利 (Net Income)',
+                            data: netIncomes,
+                            type: 'line', // 強制把淨利畫成折線圖！
+                            borderColor: 'rgb(255, 99, 132)', // 紅色
+                            backgroundColor: 'rgb(255, 99, 132)',
+                            borderWidth: 3,
+                            fill: false, // 內部不填滿顏色
+                            tension: 0.1, // 讓線條有點微彎
+                            order: 1 // 折線圖在最上層
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // 允許我們自訂高度
+                    interaction: { mode: 'index', intersect: false }, // 滑鼠游標移過去時，顯示同一年的所有數據
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: {
+                                // 將龐大的數字轉換為「億」為單位，看起來更乾淨
+                                callback: function(value) {
+                                    return (value / 100000000).toFixed(0) + ' 億';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. 綁定按鈕：當使用者點擊查詢時執行
         function searchFinancials() {
             const code = document.getElementById('stockCode').value.trim();
-            if(!code) {
-                alert('請輸入股票代碼！');
-                return;
+            if (code) {
+                renderChart(code);
             }
-            
-            currentSymbol = `TWSE:${code}`;
-            
-            // 隱藏歡迎詞，顯示結果區塊
-            document.getElementById('welcome-message').style.display = 'none';
-            document.getElementById('financial-results').style.display = 'block';
-            document.getElementById('display-symbol').innerText = `目前查看：台股 ${code}`;
-
-            // 重新載入小工具
-            loadWidget();
         }
 
-        // 左側目錄列點擊時的互動邏輯
-        function changeTab(clickedButton, tableName) {
-            // 1. 把所有按鈕的 active 狀態取消
-            const buttons = document.querySelectorAll('.menu-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            
-            // 2. 把被點擊的按鈕加上 active 狀態 (變綠色)
-            clickedButton.classList.add('active');
-            
-            // 3. 更改右邊的標題
-            document.getElementById('current-table-title').innerText = tableName;
-            
-            // 如果還沒搜尋，就不載入圖表
-            if (!currentSymbol) return; 
-        }
-
-        // 載入 TradingView 小工具的專屬函式
-        function loadWidget() {
-            const container = document.getElementById('tv-financials');
-            container.innerHTML = ''; // 清空舊資料
-
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-financials.js';
-            script.async = true;
-            
-            script.innerHTML = JSON.stringify({
-                "colorTheme": "light",
-                "isTransparent": false,
-                "largeChartUrl": "",
-                "displayMode": "regular",
-                "width": "100%",
-                "height": "100%",
-                "symbol": currentSymbol,
-                "locale": "zh_TW"
-            });
-
-            container.appendChild(script);
-        }
+        // 啟動程式：網頁載入完畢後執行 loadData
+        window.onload = loadData;
     </script>
 </body>
 </html>
