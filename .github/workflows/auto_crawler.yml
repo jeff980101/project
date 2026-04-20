@@ -27,11 +27,16 @@ jobs:
     - name: 🕷️ 執行 Python 爬蟲
       run: python crawler.py
 
+      # 👇 修改 2：新增這個區塊，請機器人接著執行財報爬蟲
+    - name: 📊 執行 Python 財報爬蟲
+      run: python fetch_financials.py
+
     - name: 💾 儲存並推播更新的 JSON 檔案
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action Bot"
-        git add news.json
-        # 如果資料有變動才 commit，沒變動就忽略
-        git commit -m "Auto-update news.json" || exit 0
+        # 👇 修改 3：把原本的 git add news.json 改成 git add .
+        # (git add . 結尾有一個小數點，代表「把所有變動的檔案都加進去」，這樣新聞和財報 JSON 就會一起存檔)
+        git add .
+        git commit -m "Auto-update news and financial data" || exit 0
         git push
