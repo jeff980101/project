@@ -3,138 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>個人專屬財報分析 - 三大報表版</title>
+    <title>企業財報數據中心 - 專業版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 0; margin: 0; background-color: #f4f6f9; color: #333; }
-        .top-nav { background-color: #fff; padding: 15px 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .nav-left a { text-decoration: none; color: #0056b3; font-weight: bold; font-size: 14px; }
-        .nav-left h1 { margin: 0; font-size: 22px; color: #2c3e50; }
-        .search-box { display: flex; gap: 10px; }
-        input { padding: 10px 15px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; width: 220px; }
-        button#searchBtn { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; margin: 0; background-color: #f8f9fa; }
+        .top-nav { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .layout-container { display: flex; max-width: 1400px; margin: 20px auto; gap: 20px; padding: 0 20px; }
+        
+        /* 側邊欄 */
+        .sidebar { width: 260px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .menu-btn { width: 100%; text-align: left; padding: 12px; margin-bottom: 8px; border: 1px solid transparent; background: none; border-radius: 8px; cursor: pointer; transition: 0.3s; font-size: 15px; }
+        .menu-btn.active { background: #e7f3ff; color: #007bff; border-color: #007bff; font-weight: bold; }
+        .menu-btn:hover:not(.active) { background: #f0f0f0; }
 
-        .layout-container { display: flex; max-width: 1300px; margin: 0 auto; gap: 20px; padding: 0 20px; }
-        .sidebar { width: 240px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 20px; flex-shrink: 0; }
-        .menu-list { list-style: none; padding: 0; }
-        .menu-btn { width: 100%; text-align: left; padding: 12px 15px; background: none; border: 1px solid transparent; border-radius: 6px; font-size: 15px; cursor: pointer; margin-bottom: 8px; transition: 0.2s; }
-        .menu-btn:hover { background-color: #f8f9fa; }
-        .menu-btn.active { background-color: #e6f4ea; color: #28a745; border: 1px solid #28a745; font-weight: bold; }
-
-        .main-content { flex: 1; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-height: 600px; }
-        .chart-container { position: relative; height: 500px; width: 100%; margin-top: 20px; }
-        #error-msg { color: #e74c3c; font-weight: bold; display: none; padding: 15px; background: #fdf2f2; border-radius: 6px; }
+        /* 主內容區 */
+        .main-content { flex: 1; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .section { display: none; }
+        .section.active { display: block; }
+        
+        /* 簡介與新聞樣式 */
+        .info-card { background: #fdfdfd; padding: 20px; border-left: 5px solid #007bff; margin-bottom: 25px; line-height: 1.8; color: #444; }
+        .news-item { padding: 15px 0; border-bottom: 1px solid #eee; }
+        .news-item:last-child { border-bottom: none; }
+        .news-title { font-weight: bold; font-size: 16px; text-decoration: none; color: #2c3e50; display: block; margin-bottom: 5px; }
+        .news-title:hover { color: #007bff; }
+        .news-meta { font-size: 13px; color: #888; }
+        
+        #financialChart { max-height: 500px; }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <div class="nav-left">
-            <a href="index.html">⬅️ 返回儀表板首頁</a>
-            <h1>📈 企業財報數據中心</h1>
-        </div>
-        <div class="search-box">
-            <input type="text" id="stockCode" placeholder="輸入代碼 (例: 2330)" value="2330">
-            <button id="searchBtn" onclick="searchFinancials()">查詢財報</button>
+        <div><h1>📈 企業財報分析系統</h1></div>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="stockCode" placeholder="輸入代碼 (例: 2330)" value="2330" style="padding:10px; border-radius:6px; border:1px solid #ddd;">
+            <button onclick="searchStock()" style="padding:10px 20px; background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">查詢</button>
         </div>
     </div>
 
     <div class="layout-container">
         <div class="sidebar">
-            <h3 style="color:#666; font-size:14px;">切換報表類型</h3>
-            <ul class="menu-list">
-                <li><button class="menu-btn active" onclick="switchReport('income_statement', this)">1. 損益表 (獲利能力)</button></li>
-                <li><button class="menu-btn" onclick="switchReport('balance_sheet', this)">2. 資產負債表 (財務結構)</button></li>
-                <li><button class="menu-btn" onclick="switchReport('cash_flow', this)">3. 現金流量表 (現金流向)</button></li>
-            </ul>
+            <h3 style="color:#666; font-size:14px; margin-bottom:15px;">導覽目次</h3>
+            <button class="menu-btn active" onclick="switchTab('overview', this)">🏠 個股概覽與新聞</button>
+            <button class="menu-btn" onclick="switchTab('income', this)">💰 損益表分析</button>
+            <button class="menu-btn" onclick="switchTab('balance', this)">⚖️ 資產負債表</button>
+            <button class="menu-btn" onclick="switchTab('cash', this)">💵 現金流量表</button>
         </div>
 
         <div class="main-content">
-            <h2 id="display-title" style="color: #2c3e50; margin-top: 0;">載入中...</h2>
-            <p id="report-desc" style="color: #666;"></p>
+            <h2 id="stock-name-title">載入中...</h2>
             
-            <div id="error-msg"></div>
-            
-            <div class="chart-container">
-                <canvas id="financialChart"></canvas>
+            <div id="section-overview" class="section active">
+                <h3>🏢 公司基本介紹</h3>
+                <div id="company-summary" class="info-card">正在讀取簡介...</div>
+                
+                <h3>📰 最新相關新聞</h3>
+                <div id="news-container">正在獲取新聞...</div>
+            </div>
+
+            <div id="section-chart" class="section">
+                <h3 id="chart-title">財務圖表</h3>
+                <p id="chart-desc" style="color:#666;"></p>
+                <div style="height: 450px;">
+                    <canvas id="financialChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        let allData = null;
         let chartInstance = null;
-        let allFinancialData = null;
-        let currentType = 'income_statement'; // 預設顯示損益表
+        let currentSymbol = "2330";
 
-        // 1. 初始化讀取資料
         async function init() {
-            try {
-                const response = await fetch('financial_data.json?' + new Date().getTime());
-                if (!response.ok) throw new Error();
-                allFinancialData = await response.json();
-                searchFinancials();
-            } catch (e) {
-                showError("⚠️ 無法讀取資料庫，請確認 JSON 檔案是否存在。");
-            }
+            const resp = await fetch('financial_data.json?' + Date.now());
+            allData = await resp.json();
+            updateUI();
         }
 
-        // 2. 切換報表按鈕點擊事件
-        function switchReport(type, btnElement) {
-            currentType = type;
-            // 切換按鈕樣式
-            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-            // 重新繪圖
-            searchFinancials();
-        }
-
-        function searchFinancials() {
-            const symbol = document.getElementById('stockCode').value.trim();
-            if (!allFinancialData || !allFinancialData[symbol]) {
-                showError(`⚠️ 找不到代碼 ${symbol} 的資料。`);
+        function searchStock() {
+            currentSymbol = document.getElementById('stockCode').value.trim();
+            if (!allData[currentSymbol]) {
+                alert("找不到該股票資料，請檢查代碼或 Actions 是否跑完。");
                 return;
             }
-            hideError();
-            renderChart(symbol);
+            // 搜尋後預設跳回「個股概覽」
+            switchTab('overview', document.querySelector('.menu-btn'));
+            updateUI();
         }
 
-        // 3. 核心繪圖邏輯 (支援三種報表)
-        function renderChart(symbol) {
-            const stockData = allFinancialData[symbol];
-            const reportData = stockData[currentType];
-            const years = Object.keys(reportData).sort();
-
-            // 根據不同報表類型，定義要抓取的欄位與顏色
-            let configs = {};
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
             
-            if (currentType === 'income_statement') {
-                configs = {
-                    title: "年度營收與獲利趨勢",
-                    desc: "觀察公司賺錢的效率。長條：總營收 / 折線：淨利",
-                    label1: "總營收", key1: "Total Revenue", color1: "rgba(54, 162, 235, 0.6)",
-                    label2: "淨利", key2: "Net Income", color2: "rgb(255, 99, 132)"
-                };
-            } else if (currentType === 'balance_sheet') {
-                configs = {
-                    title: "年度資產與負債結構",
-                    desc: "觀察公司的財務健康度。長條：總資產 / 折線：總負債",
-                    label1: "總資產", key1: "Total Assets", color1: "rgba(75, 192, 192, 0.6)",
-                    label2: "總負債", key2: "Total Liabilities Net Minority Interest", color2: "rgb(255, 159, 64)"
-                };
-            } else if (currentType === 'cash_flow') {
-                configs = {
-                    title: "年度現金流量狀況",
-                    desc: "觀察公司真正的現金進出。長條：營業現金流 / 折線：自由現金流",
-                    label1: "營業現金流", key1: "Operating Cash Flow", color1: "rgba(153, 102, 255, 0.6)",
-                    label2: "自由現金流", key2: "Free Cash Flow", color2: "rgb(255, 205, 86)"
-                };
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            if (tab === 'overview') {
+                document.getElementById('section-overview').classList.add('active');
+            } else {
+                document.getElementById('section-chart').classList.add('active');
+                renderChart(tab);
+            }
+        }
+
+        function updateUI() {
+            const data = allData[currentSymbol];
+            document.getElementById('stock-name-title').innerText = `${data.name} (${currentSymbol})`;
+            document.getElementById('company-summary').innerText = data.summary;
+            
+            // 渲染新聞
+            const newsHtml = data.news.map(n => `
+                <div class="news-item">
+                    <a href="${n.link}" target="_blank" class="news-title">${n.title}</a>
+                    <div class="news-meta">${n.publisher} • ${n.time}</div>
+                </div>
+            `).join('');
+            document.getElementById('news-container').innerHTML = newsHtml || "目前無相關新聞。";
+        }
+
+        function renderChart(type) {
+            const data = allData[currentSymbol];
+            let config = {};
+            
+            if (type === 'income') {
+                config = { label: "損益表", key1: "Total Revenue", key2: "Net Income", title: "營收與淨利趨勢", color: "rgba(54, 162, 235, 0.6)" };
+            } else if (type === 'balance') {
+                config = { label: "資產負債", key1: "Total Assets", key2: "Total Liabilities Net Minority Interest", title: "資產與負債結構", color: "rgba(75, 192, 192, 0.6)" };
+            } else if (type === 'cash') {
+                config = { label: "現金流量", key1: "Operating Cash Flow", key2: "Free Cash Flow", title: "現金流向觀察", color: "rgba(153, 102, 255, 0.6)" };
             }
 
-            document.getElementById('display-title').innerText = `${stockData.name} (${symbol}) - ${configs.title}`;
-            document.getElementById('report-desc').innerText = configs.desc;
-
-            const data1 = years.map(y => reportData[y][configs.key1] || 0);
-            const data2 = years.map(y => reportData[y][configs.key2] || 0);
+            document.getElementById('chart-title').innerText = config.title;
+            const years = Object.keys(data.income_statement).sort();
+            const reportData = type === 'income' ? data.income_statement : (type === 'balance' ? data.balance_sheet : data.cash_flow);
 
             const ctx = document.getElementById('financialChart').getContext('2d');
             if (chartInstance) chartInstance.destroy();
@@ -144,29 +147,12 @@
                 data: {
                     labels: years,
                     datasets: [
-                        { label: configs.label1, data: data1, backgroundColor: configs.color1, order: 2 },
-                        { label: configs.label2, data: data2, type: 'line', borderColor: configs.color2, backgroundColor: configs.color2, borderWidth: 3, fill: false, order: 1 }
+                        { label: '主數據', data: years.map(y => reportData[y][config.key1]), backgroundColor: config.color },
+                        { label: '次數據', data: years.map(y => reportData[y][config.key2]), type: 'line', borderColor: '#ff6384', borderWidth: 3 }
                     ]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { ticks: { callback: v => (v / 100000000).toFixed(0) + ' 億' } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
-        }
-
-        function showError(msg) {
-            const el = document.getElementById('error-msg');
-            el.innerText = msg;
-            el.style.display = "block";
-            document.getElementById('display-title').innerText = "查詢失敗";
-        }
-
-        function hideError() {
-            document.getElementById('error-msg').style.display = "none";
         }
 
         window.onload = init;
