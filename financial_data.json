@@ -2,7 +2,7 @@
     "2330": {
         "stock_id": "2330",
         "name": "TAIWAN SEMICONDUCTOR MANUFACTUR",
-        "last_updated": "2026-04-20",
+        "last_updated": "2026-04-21",
         "income_statement": {
             "2025": {
                 "Tax Effect Of Unusual Items": 913146735.341681,
@@ -43,6 +43,7 @@
                 "Gain On Sale Of Security": 5548000000.0,
                 "Net Non Operating Interest Income Expense": 93368700000.0,
                 "Total Other Finance Cost": 0.0,
+                "Interest Expense Non Operating": 12370400000.0,
                 "Interest Income Non Operating": 105739100000.0,
                 "Operating Income": 1936095600000.0,
                 "Operating Expense": 345198400000.0,
@@ -96,6 +97,7 @@
                 "Gain On Sale Of Security": 1113000000.0,
                 "Net Non Operating Interest Income Expense": 76718000000.0,
                 "Total Other Finance Cost": -76718000000.0,
+                "Interest Expense Non Operating": 10495400000.0,
                 "Interest Income Non Operating": 87213400000.0,
                 "Operating Income": 1322003100000.0,
                 "Operating Expense": 302350500000.0,
@@ -149,6 +151,7 @@
                 "Gain On Sale Of Security": 3363800000.0,
                 "Net Non Operating Interest Income Expense": 48294500000.0,
                 "Total Other Finance Cost": -48294000000.0,
+                "Interest Expense Non Operating": 11999400000.0,
                 "Interest Income Non Operating": 60293900000.0,
                 "Operating Income": 921429900000.0,
                 "Operating Expense": 253680700000.0,
@@ -202,6 +205,7 @@
                 "Gain On Sale Of Security": 3473200000.0,
                 "Net Non Operating Interest Income Expense": 10672200000.0,
                 "Total Other Finance Cost": 0.0,
+                "Interest Expense Non Operating": 11750000000.0,
                 "Interest Income Non Operating": 22422200000.0,
                 "Operating Income": 1121226500000.0,
                 "Operating Expense": 227128300000.0,
@@ -255,6 +259,7 @@
                 "Gain On Sale Of Security": 0.0,
                 "Net Non Operating Interest Income Expense": 0.0,
                 "Total Other Finance Cost": -294000000.0,
+                "Interest Expense Non Operating": 0.0,
                 "Interest Income Non Operating": 0.0,
                 "Operating Income": 0.0,
                 "Operating Expense": 0.0,
@@ -274,7 +279,7 @@
     "2317": {
         "stock_id": "2317",
         "name": "HON HAI PRECISION INDUSTRY",
-        "last_updated": "2026-04-20",
+        "last_updated": "2026-04-21",
         "income_statement": {
             "2025": {
                 "Tax Effect Of Unusual Items": 0.0,
@@ -453,7 +458,7 @@
     "2454": {
         "stock_id": "2454",
         "name": "MEDIATEK INC",
-        "last_updated": "2026-04-20",
+        "last_updated": "2026-04-21",
         "income_statement": {
             "2025": {
                 "Tax Effect Of Unusual Items": 88073.873893,
@@ -695,7 +700,7 @@
     "2881": {
         "stock_id": "2881",
         "name": "FUBON FINANCIAL HLDG CO LTD",
-        "last_updated": "2026-04-20",
+        "last_updated": "2026-04-21",
         "income_statement": {
             "2025": {
                 "Tax Effect Of Unusual Items": 661169469.689558,
@@ -846,7 +851,7 @@
     "2603": {
         "stock_id": "2603",
         "name": "EVERGREEN MARINE CORP(TAIWAN)",
-        "last_updated": "2026-04-20",
+        "last_updated": "2026-04-21",
         "income_statement": {
             "2025": {
                 "Tax Effect Of Unusual Items": -11415543.130605,
@@ -1045,7 +1050,7 @@
     "2303": {
         "stock_id": "2303",
         "name": "UNITED MICRO ELECTRONICS",
-        "last_updated": "2026-04-20",
+        "last_updated": "2026-04-21",
         "income_statement": {
             "2025": {
                 "Tax Effect Of Unusual Items": 40638728.362958,
