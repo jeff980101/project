@@ -8,6 +8,8 @@
     <style>
         body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; margin: 0; background-color: #f8f9fa; }
         .top-nav { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav-left a { text-decoration: none; color: #0056b3; font-weight: bold; font-size: 14px; margin-bottom: 5px; display: inline-block; }
+        .nav-left h1 { margin: 0; font-size: 22px; color: #2c3e50; }
         .layout-container { display: flex; max-width: 1400px; margin: 20px auto; gap: 20px; padding: 0 20px; }
         
         /* 側邊欄 */
@@ -29,13 +31,16 @@
         .news-title:hover { color: #007bff; }
         .news-meta { font-size: 13px; color: #888; }
         
-        #financialChart { max-height: 500px; }
+        #financialChart { max-height: 450px; }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <div><h1>📈 企業財報分析系統</h1></div>
+        <div class="nav-left">
+            <a href="index.html">⬅️ 返回儀表板首頁</a>
+            <h1>📈 企業財報分析系統</h1>
+        </div>
         <div style="display:flex; gap:10px;">
             <input type="text" id="stockCode" placeholder="輸入代碼 (例: 2330)" value="2330" style="padding:10px; border-radius:6px; border:1px solid #ddd;">
             <button onclick="searchStock()" style="padding:10px 20px; background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">查詢</button>
@@ -78,18 +83,21 @@
         let currentSymbol = "2330";
 
         async function init() {
-            const resp = await fetch('financial_data.json?' + Date.now());
-            allData = await resp.json();
-            updateUI();
+            try {
+                const resp = await fetch('financial_data.json?' + Date.now());
+                allData = await resp.json();
+                updateUI();
+            } catch (error) {
+                alert("無法讀取 JSON 資料，請確認 GitHub Actions 是否已成功產生最新檔案。");
+            }
         }
 
         function searchStock() {
             currentSymbol = document.getElementById('stockCode').value.trim();
-            if (!allData[currentSymbol]) {
-                alert("找不到該股票資料，請檢查代碼或 Actions 是否跑完。");
+            if (!allData || !allData[currentSymbol]) {
+                alert("找不到該股票資料，請檢查代碼。");
                 return;
             }
-            // 搜尋後預設跳回「個股概覽」
             switchTab('overview', document.querySelector('.menu-btn'));
             updateUI();
         }
@@ -110,34 +118,39 @@
 
         function updateUI() {
             const data = allData[currentSymbol];
-            document.getElementById('stock-name-title').innerText = `${data.name} (${currentSymbol})`;
-            document.getElementById('company-summary').innerText = data.summary;
+            document.getElementById('stock-name-title').innerText = `${data.name || currentSymbol} (${currentSymbol})`;
             
-            // 渲染新聞
-            const newsHtml = data.news.map(n => `
-                <div class="news-item">
-                    <a href="${n.link}" target="_blank" class="news-title">${n.title}</a>
-                    <div class="news-meta">${n.publisher} • ${n.time}</div>
-                </div>
-            `).join('');
-            document.getElementById('news-container').innerHTML = newsHtml || "目前無相關新聞。";
+            // 修復 3：防呆機制，如果 JSON 裡沒有 summary 或 news，給予預設值，避免網頁崩潰
+            document.getElementById('company-summary').innerText = data.summary || "Yahoo Finance 暫無提供該公司的中文簡介。";
+            
+            let newsHtml = "目前暫無最新相關新聞。";
+            if (data.news && Array.isArray(data.news) && data.news.length > 0) {
+                newsHtml = data.news.map(n => `
+                    <div class="news-item">
+                        <a href="${n.link}" target="_blank" class="news-title">${n.title}</a>
+                        <div class="news-meta">${n.publisher} • ${n.time}</div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('news-container').innerHTML = newsHtml;
         }
 
         function renderChart(type) {
             const data = allData[currentSymbol];
             let config = {};
             
+            // 修復 2：加回正確的圖表標籤名稱 (name1, name2)
             if (type === 'income') {
-                config = { label: "損益表", key1: "Total Revenue", key2: "Net Income", title: "營收與淨利趨勢", color: "rgba(54, 162, 235, 0.6)" };
+                config = { name1: "總營收", key1: "Total Revenue", name2: "淨利", key2: "Net Income", title: "營收與淨利趨勢", color: "rgba(54, 162, 235, 0.6)" };
             } else if (type === 'balance') {
-                config = { label: "資產負債", key1: "Total Assets", key2: "Total Liabilities Net Minority Interest", title: "資產與負債結構", color: "rgba(75, 192, 192, 0.6)" };
+                config = { name1: "總資產", key1: "Total Assets", name2: "總負債", key2: "Total Liabilities Net Minority Interest", title: "資產與負債結構", color: "rgba(75, 192, 192, 0.6)" };
             } else if (type === 'cash') {
-                config = { label: "現金流量", key1: "Operating Cash Flow", key2: "Free Cash Flow", title: "現金流向觀察", color: "rgba(153, 102, 255, 0.6)" };
+                config = { name1: "營業現金流", key1: "Operating Cash Flow", name2: "自由現金流", key2: "Free Cash Flow", title: "現金流向觀察", color: "rgba(153, 102, 255, 0.6)" };
             }
 
             document.getElementById('chart-title').innerText = config.title;
-            const years = Object.keys(data.income_statement).sort();
             const reportData = type === 'income' ? data.income_statement : (type === 'balance' ? data.balance_sheet : data.cash_flow);
+            const years = Object.keys(reportData).sort();
 
             const ctx = document.getElementById('financialChart').getContext('2d');
             if (chartInstance) chartInstance.destroy();
@@ -147,11 +160,18 @@
                 data: {
                     labels: years,
                     datasets: [
-                        { label: '主數據', data: years.map(y => reportData[y][config.key1]), backgroundColor: config.color },
-                        { label: '次數據', data: years.map(y => reportData[y][config.key2]), type: 'line', borderColor: '#ff6384', borderWidth: 3 }
+                        { label: config.name1, data: years.map(y => reportData[y][config.key1] || 0), backgroundColor: config.color, order: 2 },
+                        { label: config.name2, data: years.map(y => reportData[y][config.key2] || 0), type: 'line', borderColor: '#ff6384', borderWidth: 3, fill: false, order: 1 }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: {
+                        // 修復 2：加回 Y 軸的「億」單位轉換
+                        y: { ticks: { callback: v => (v / 100000000).toFixed(0) + ' 億' } }
+                    }
+                }
             });
         }
 
