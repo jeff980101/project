@@ -1,6 +1,7 @@
 import yfinance as ticker_data
 import json
 import pandas as pd
+import time
 
 # ==========================================
 # 💡 追蹤清單
@@ -72,6 +73,7 @@ if __name__ == "__main__":
         print(f"正在抓取 {sid} 的完整資料...")
         result = fetch_stock_financials(sid)
         if result: all_data[sid] = result
+        time.sleep(2)
 
     with open('financial_data.json', 'w', encoding='utf-8') as f:
         json.dump(all_data, f, ensure_ascii=False, indent=4)
