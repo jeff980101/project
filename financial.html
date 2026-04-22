@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>企業財報數據中心 - 同業比較版</title>
+    <title>企業財報數據中心 - 進階分析版</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; margin: 0; background-color: #f8f9fa; }
@@ -13,9 +13,16 @@
         .layout-container { display: flex; max-width: 1400px; margin: 20px auto; gap: 20px; padding: 0 20px; }
         
         .sidebar { width: 260px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .menu-btn { width: 100%; text-align: left; padding: 12px; margin-bottom: 8px; border: 1px solid transparent; background: none; border-radius: 8px; cursor: pointer; transition: 0.3s; font-size: 15px; }
+        .menu-btn { width: 100%; text-align: left; padding: 12px; margin-bottom: 8px; border: 1px solid transparent; background: none; border-radius: 8px; cursor: pointer; transition: 0.3s; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
         .menu-btn.active { background: #e7f3ff; color: #007bff; border-color: #007bff; font-weight: bold; }
         .menu-btn:hover:not(.active) { background: #f0f0f0; }
+
+        /* 新增：次選單樣式 */
+        .sub-menu { display: none; padding-left: 20px; margin-bottom: 10px; }
+        .sub-menu.open { display: block; }
+        .sub-menu-btn { width: 100%; text-align: left; padding: 8px 12px; margin-bottom: 4px; border: none; background: none; border-radius: 6px; cursor: pointer; color: #555; font-size: 14px; transition: 0.2s; }
+        .sub-menu-btn:hover { background: #f0f0f0; color: #007bff; }
+        .sub-menu-btn.active { color: #007bff; font-weight: bold; background: #e7f3ff; }
 
         .main-content { flex: 1; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .section { display: none; }
@@ -29,8 +36,6 @@
         .news-meta { font-size: 13px; color: #888; }
         
         #financialChart { max-height: 450px; }
-        
-        /* 搜尋區塊樣式微調：加入第二個搜尋框的排版 */
         .search-area { display: flex; gap: 10px; align-items: center; }
         .search-area input { padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 150px; }
         .vs-text { font-weight: bold; color: #888; font-style: italic; }
@@ -54,10 +59,19 @@
     <div class="layout-container">
         <div class="sidebar">
             <h3 style="color:#666; font-size:14px; margin-bottom:15px;">導覽目次</h3>
-            <button class="menu-btn active" onclick="switchTab('overview', this)">🏠 個股概覽與新聞</button>
-            <button class="menu-btn" onclick="switchTab('income', this)">💰 損益表分析</button>
-            <button class="menu-btn" onclick="switchTab('balance', this)">⚖️ 資產負債表</button>
-            <button class="menu-btn" onclick="switchTab('cash', this)">💵 現金流量表</button>
+            
+            <button class="menu-btn active" onclick="switchTab('overview', 'none', this)"><span>🏠 個股概覽與新聞</span></button>
+            
+            <button class="menu-btn" onclick="toggleSubMenu('sub-income', this)"><span>💰 損益表分析</span> <span class="arrow">▾</span></button>
+            <div id="sub-income" class="sub-menu">
+                <button class="sub-menu-btn" onclick="switchTab('income', 'RevenueNetIncome', this)">營收與淨利</button>
+                <button class="sub-menu-btn" onclick="switchTab('income', 'GrossMargin', this)">毛利率 (%)</button>
+                <button class="sub-menu-btn" onclick="switchTab('income', 'EPS', this)">EPS (每股盈餘)</button>
+                <button class="sub-menu-btn" onclick="switchTab('income', 'ROE', this)">ROE (股東權益報酬率)</button>
+            </div>
+
+            <button class="menu-btn" onclick="switchTab('balance', 'none', this)"><span>⚖️ 資產負債表</span></button>
+            <button class="menu-btn" onclick="switchTab('cash', 'none', this)"><span>💵 現金流量表</span></button>
         </div>
 
         <div class="main-content">
@@ -111,26 +125,56 @@
                 document.getElementById('compareCode').value = "";
             }
             
-            switchTab('overview', document.querySelector('.menu-btn'));
+            switchTab('overview', 'none', document.querySelector('.menu-btn'));
             updateUI();
         }
 
-        function switchTab(tab, btn) {
-            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        // 展開/收起次選單的開關
+        function toggleSubMenu(menuId, btn) {
+            const subMenu = document.getElementById(menuId);
+            const isOpen = subMenu.classList.contains('open');
+            
+            // 先關閉所有次選單
+            document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('open'));
+            
+            // 如果原本是關的，就打開它，並預設點擊第一個子項目
+            if (!isOpen) {
+                subMenu.classList.add('open');
+                subMenu.querySelector('.sub-menu-btn').click();
+            }
+        }
+
+        function switchTab(type, subType, btn) {
+            // 處理主按鈕的 active 狀態
+            if(btn.classList.contains('menu-btn')) {
+                document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            
+            // 處理次選單按鈕的 active 狀態
+            if(btn.classList.contains('sub-menu-btn')) {
+                document.querySelectorAll('.sub-menu-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // 讓父層的主按鈕也亮起來
+                document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+                btn.closest('.sidebar').querySelector('[onclick*="sub-income"]').classList.add('active');
+            }
+
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             
-            if (tab === 'overview') {
+            if (type === 'overview') {
                 document.getElementById('section-overview').classList.add('active');
+                // 關閉所有次選單
+                document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('open'));
             } else {
                 document.getElementById('section-chart').classList.add('active');
-                renderChart(tab);
+                renderChart(type, subType);
             }
         }
 
         function updateUI() {
             const data = allData[currentSymbol];
-            
             if(compareSymbol) {
                 const compData = allData[compareSymbol];
                 document.getElementById('stock-name-title').innerText = `${data.name}(${currentSymbol}) ⚔️ VS ⚔️ ${compData.name}(${compareSymbol})`;
@@ -142,43 +186,83 @@
             
             let newsHtml = "目前暫無最新相關新聞。";
             if (data.news && Array.isArray(data.news) && data.news.length > 0) {
-                newsHtml = data.news.map(n => `
-                    <div class="news-item">
-                        <a href="${n.link}" target="_blank" class="news-title">${n.title}</a>
-                        <div class="news-meta">${n.publisher} • ${n.time}</div>
-                    </div>
-                `).join('');
+                newsHtml = data.news.map(n => `<div class="news-item"><a href="${n.link}" target="_blank" class="news-title">${n.title}</a><div class="news-meta">${n.publisher} • ${n.time}</div></div>`).join('');
             }
             document.getElementById('news-container').innerHTML = newsHtml;
         }
 
-        function renderChart(type) {
+        // 核心：動態取得與計算數據
+        function getMetric(data, year, type, subType) {
+            const inc = data.income_statement[year] || {};
+            const bal = data.balance_sheet[year] || {};
+            
+            if (type === 'income') {
+                if (subType === 'RevenueNetIncome') return { main: inc["Total Revenue"] || 0, sub: inc["Net Income"] || 0 };
+                // 毛利率 = (毛利 / 總營收) * 100
+                if (subType === 'GrossMargin') {
+                    const rev = inc["Total Revenue"] || 0;
+                    const gp = inc["Gross Profit"] || 0;
+                    return { main: rev ? (gp / rev * 100) : 0 };
+                }
+                // EPS = 直接抓 Basic EPS
+                if (subType === 'EPS') return { main: inc["Basic EPS"] || 0 };
+                // ROE = (淨利 / 股東權益) * 100
+                if (subType === 'ROE') {
+                    const ni = inc["Net Income"] || 0;
+                    const equity = bal["Stockholders Equity"] || bal["Total Stockholder Equity"] || 0;
+                    return { main: equity ? (ni / equity * 100) : 0 };
+                }
+            } else if (type === 'balance') {
+                return { main: bal["Total Assets"] || 0, sub: bal["Total Liabilities Net Minority Interest"] || 0 };
+            } else if (type === 'cash') {
+                const cf = data.cash_flow[year] || {};
+                return { main: cf["Operating Cash Flow"] || 0, sub: cf["Free Cash Flow"] || 0 };
+            }
+            return { main: 0, sub: 0 };
+        }
+
+        function renderChart(type, subType) {
             const data1 = allData[currentSymbol];
             const data2 = compareSymbol ? allData[compareSymbol] : null; 
-            
-            let config = {};
+            const baseData = type === 'income' ? data1.income_statement : (type === 'balance' ? data1.balance_sheet : data1.cash_flow);
+            const years = Object.keys(baseData).sort();
+
+            let title = "";
+            let yAxisFormatter = (v) => v; // 預設單位
+
+            // 判斷要畫什麼圖、以及 Y 軸單位
             if (type === 'income') {
-                config = { name1: "總營收", key1: "Total Revenue", name2: "淨利", key2: "Net Income", title: "營收與淨利", color1: "rgba(54, 162, 235, 0.7)", color2: "rgba(169, 169, 169, 0.5)" };
-            } else if (type === 'balance') {
-                config = { name1: "總資產", key1: "Total Assets", name2: "總負債", key2: "Total Liabilities Net Minority Interest", title: "資產與負債", color1: "rgba(75, 192, 192, 0.7)", color2: "rgba(169, 169, 169, 0.5)" };
-            } else if (type === 'cash') {
-                config = { name1: "營業現金流", key1: "Operating Cash Flow", name2: "自由現金流", key2: "Free Cash Flow", title: "現金流向", color1: "rgba(153, 102, 255, 0.7)", color2: "rgba(169, 169, 169, 0.5)" };
+                if (subType === 'RevenueNetIncome') { title = "營收與淨利"; yAxisFormatter = (v) => (v / 100000000).toFixed(0) + ' 億'; }
+                if (subType === 'GrossMargin') { title = "毛利率 (%)"; yAxisFormatter = (v) => v.toFixed(2) + ' %'; }
+                if (subType === 'EPS') { title = "EPS 每股盈餘 (元)"; yAxisFormatter = (v) => v.toFixed(2) + ' 元'; }
+                if (subType === 'ROE') { title = "ROE 股東權益報酬率 (%)"; yAxisFormatter = (v) => v.toFixed(2) + ' %'; }
+            } else if (type === 'balance') { title = "資產與負債"; yAxisFormatter = (v) => (v / 100000000).toFixed(0) + ' 億'; } 
+              else if (type === 'cash') { title = "現金流向"; yAxisFormatter = (v) => (v / 100000000).toFixed(0) + ' 億'; }
+
+            document.getElementById('chart-title').innerText = compareSymbol ? `${title} - 比較表` : `${title} - 趨勢圖`;
+
+            let datasets = [];
+
+            // 準備主公司的資料
+            const vals1 = years.map(y => getMetric(data1, y, type, subType));
+            if (subType === 'GrossMargin' || subType === 'EPS' || subType === 'ROE') {
+                // 單一指標時，用折線圖或長條圖比較清楚 (這裡統一用長條圖)
+                datasets.push({ label: `${currentSymbol} ${title}`, data: vals1.map(v => v.main), backgroundColor: "rgba(54, 162, 235, 0.7)" });
+            } else {
+                // 複合指標 (如營收+淨利)
+                datasets.push({ label: `${currentSymbol} 主指標`, data: vals1.map(v => v.main), backgroundColor: "rgba(54, 162, 235, 0.7)", order: 2 });
+                datasets.push({ label: `${currentSymbol} 次指標`, data: vals1.map(v => v.sub), type: 'line', borderColor: '#ff6384', borderWidth: 3, fill: false, order: 1 });
             }
 
-            document.getElementById('chart-title').innerText = compareSymbol ? `${config.title}比較表` : `${config.title}趨勢`;
-
-            const reportData1 = type === 'income' ? data1.income_statement : (type === 'balance' ? data1.balance_sheet : data1.cash_flow);
-            const years = Object.keys(reportData1).sort();
-
-            let datasets = [
-                { label: `${currentSymbol} ${config.name1}`, data: years.map(y => reportData1[y][config.key1] || 0), backgroundColor: config.color1, order: 2 },
-                { label: `${currentSymbol} ${config.name2}`, data: years.map(y => reportData1[y][config.key2] || 0), type: 'line', borderColor: '#ff6384', borderWidth: 3, fill: false, order: 1 }
-            ];
-
+            // 準備比較公司的資料
             if (data2) {
-                const reportData2 = type === 'income' ? data2.income_statement : (type === 'balance' ? data2.balance_sheet : data2.cash_flow);
-                datasets.push({ label: `${compareSymbol} ${config.name1}`, data: years.map(y => reportData2[y] ? (reportData2[y][config.key1] || 0) : 0), backgroundColor: config.color2, order: 2 });
-                datasets.push({ label: `${compareSymbol} ${config.name2}`, data: years.map(y => reportData2[y] ? (reportData2[y][config.key2] || 0) : 0), type: 'line', borderColor: '#ff9f40', borderWidth: 3, fill: false, borderDash: [5, 5], order: 1 });
+                const vals2 = years.map(y => getMetric(data2, y, type, subType));
+                if (subType === 'GrossMargin' || subType === 'EPS' || subType === 'ROE') {
+                    datasets.push({ label: `${compareSymbol} ${title}`, data: vals2.map(v => v.main), backgroundColor: "rgba(169, 169, 169, 0.7)" });
+                } else {
+                    datasets.push({ label: `${compareSymbol} 主指標`, data: vals2.map(v => v.main), backgroundColor: "rgba(169, 169, 169, 0.5)", order: 2 });
+                    datasets.push({ label: `${compareSymbol} 次指標`, data: vals2.map(v => v.sub), type: 'line', borderColor: '#ff9f40', borderWidth: 3, fill: false, borderDash: [5, 5], order: 1 });
+                }
             }
 
             const ctx = document.getElementById('financialChart').getContext('2d');
@@ -191,7 +275,7 @@
                     responsive: true, 
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false }, 
-                    scales: { y: { ticks: { callback: v => (v / 100000000).toFixed(0) + ' 億' } } }
+                    scales: { y: { ticks: { callback: yAxisFormatter } } }
                 }
             });
         }
