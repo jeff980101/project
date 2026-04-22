@@ -19,6 +19,16 @@ TARGET_STOCKS = [
 def fetch_stock_financials(stock_id):
     symbol = f"{stock_id}.TW"
     stock = ticker_data.Ticker(symbol)
+    # --- 新增：抓取目前股價 ---
+    # 有些股票可能抓不到 info，我們用 fast_info 或 history 確保抓到價格
+    current_price = 0
+    try:
+        current_price = stock.fast_info['last_price']
+    except:
+        # 備用方案：抓最後一天的收盤價
+        hist = stock.history(period="1d")
+        if not hist.empty:
+            current_price = hist['Close'].iloc[-1]
     try:
         # 1. 抓取基本資訊 (介紹)
         info = stock.info
@@ -48,6 +58,7 @@ def fetch_stock_financials(stock_id):
         data = {
             "stock_id": stock_id,
             "name": info.get('shortName', stock_id),
+            "currentPrice": current_price,
             "summary": summary,  # 🚀 新增公司簡介
             "last_updated": pd.Timestamp.now().strftime('%Y-%m-%d'),
             "income_statement": format_df(income_stmt),
