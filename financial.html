@@ -258,16 +258,22 @@
 
             let title = "";
             let yAxisFormatter = (v) => v; 
+            
+            // 新增：動態設定主副指標的名稱
+            let mainLabel = "";
+            let subLabel = "";
 
             if (type === 'income') {
-                if (subType === 'RevenueNetIncome') { title = "營收與淨利"; yAxisFormatter = (v) => (v / 100000000).toFixed(0) + ' 億'; }
+                if (subType === 'RevenueNetIncome') { title = "營收與淨利"; mainLabel = "總營收"; subLabel = "淨利"; yAxisFormatter = (v) => (v / 100000000).toFixed(0) + ' 億'; }
                 if (subType === 'GrossMargin') { title = "毛利率 (%)"; yAxisFormatter = (v) => v.toFixed(2) + ' %'; }
                 if (subType === 'NetMargin') { title = "淨利率 (%)"; yAxisFormatter = (v) => v.toFixed(2) + ' %'; }
                 if (subType === 'EPS') { title = "EPS 每股盈餘 (元)"; yAxisFormatter = (v) => v.toFixed(2) + ' 元'; }
-                if (subType === 'PE') { title = "本益比 (倍)"; yAxisFormatter = (v) => v.toFixed(2) + ' 倍'; }
                 if (subType === 'ROE') { title = "ROE 股東權益報酬率 (%)"; yAxisFormatter = (v) => v.toFixed(2) + ' %'; }
-            } else if (type === 'balance') { title = "資產與負債"; yAxisFormatter = (v) => (v / 100000000).toFixed(0) + ' 億'; } 
-              else if (type === 'cash') { title = "現金流向"; yAxisFormatter = (v) => (v / 100000000).toFixed(0) + ' 億'; }
+            } else if (type === 'balance') { 
+                title = "資產與負債"; mainLabel = "總資產"; subLabel = "總負債"; yAxisFormatter = (v) => (v / 100000000).toFixed(0) + ' 億'; 
+            } else if (type === 'cash') { 
+                title = "現金流向"; mainLabel = "營業現金流"; subLabel = "自由現金流"; yAxisFormatter = (v) => (v / 100000000).toFixed(0) + ' 億'; 
+            }
 
             document.getElementById('chart-title').innerText = compareSymbol ? `${title} - 比較表` : `${title} - 趨勢圖`;
 
@@ -275,13 +281,14 @@
             const vals1 = years.map(y => getMetric(data1, y, type, subType));
             
             // 判斷是否為單一指標 (只需要畫一條線/一組長條)
-            const singleMetrics = ['GrossMargin', 'NetMargin', 'EPS', 'PE', 'ROE'];
+            const singleMetrics = ['GrossMargin', 'NetMargin', 'EPS', 'ROE'];
             
             if (singleMetrics.includes(subType)) {
                 datasets.push({ label: `${currentSymbol} ${title}`, data: vals1.map(v => v.main), backgroundColor: "rgba(54, 162, 235, 0.7)" });
             } else {
-                datasets.push({ label: `${currentSymbol} 主指標`, data: vals1.map(v => v.main), backgroundColor: "rgba(54, 162, 235, 0.7)", order: 2 });
-                datasets.push({ label: `${currentSymbol} 次指標`, data: vals1.map(v => v.sub), type: 'line', borderColor: '#ff6384', borderWidth: 3, fill: false, order: 1 });
+                // 將寫死的「主指標/次指標」換成動態變數 mainLabel 和 subLabel
+                datasets.push({ label: `${currentSymbol} ${mainLabel}`, data: vals1.map(v => v.main), backgroundColor: "rgba(54, 162, 235, 0.7)", order: 2 });
+                datasets.push({ label: `${currentSymbol} ${subLabel}`, data: vals1.map(v => v.sub), type: 'line', borderColor: '#ff6384', borderWidth: 3, fill: false, order: 1 });
             }
 
             if (data2) {
@@ -289,8 +296,9 @@
                 if (singleMetrics.includes(subType)) {
                     datasets.push({ label: `${compareSymbol} ${title}`, data: vals2.map(v => v.main), backgroundColor: "rgba(169, 169, 169, 0.7)" });
                 } else {
-                    datasets.push({ label: `${compareSymbol} 主指標`, data: vals2.map(v => v.main), backgroundColor: "rgba(169, 169, 169, 0.5)", order: 2 });
-                    datasets.push({ label: `${compareSymbol} 次指標`, data: vals2.map(v => v.sub), type: 'line', borderColor: '#ff9f40', borderWidth: 3, fill: false, borderDash: [5, 5], order: 1 });
+                    // 比較對象也套用動態變數
+                    datasets.push({ label: `${compareSymbol} ${mainLabel}`, data: vals2.map(v => v.main), backgroundColor: "rgba(169, 169, 169, 0.5)", order: 2 });
+                    datasets.push({ label: `${compareSymbol} ${subLabel}`, data: vals2.map(v => v.sub), type: 'line', borderColor: '#ff9f40', borderWidth: 3, fill: false, borderDash: [5, 5], order: 1 });
                 }
             }
 
