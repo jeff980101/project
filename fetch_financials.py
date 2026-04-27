@@ -1,12 +1,9 @@
 import yfinance as ticker_data
-import json
 import pandas as pd
-import time
+import json
+import time # 👈 新增：用來讓程式暫停的模組
+from datetime import datetime # 👈 新增：用來處理新聞時間
 
-# ==========================================
-# 💡 追蹤清單
-# ==========================================
-# 將原本的 TARGET_STOCKS 替換成這個擴大版清單
 TARGET_STOCKS = [
     # 半導體與電子代工
     "2330", "2317", "2454", "2308", "2382", "3231", "2356", "2303", "3711", "2408",
@@ -19,73 +16,89 @@ TARGET_STOCKS = [
 def fetch_stock_financials(stock_id):
     symbol = f"{stock_id}.TW"
     stock = ticker_data.Ticker(symbol)
-    # --- 新增：抓取目前股價 ---
-    # 有些股票可能抓不到 info，我們用 fast_info 或 history 確保抓到價格
-    current_price = 0
+    
     try:
-        current_price = stock.fast_info['last_price']
-    except:
-        # 備用方案：抓最後一天的收盤價
-        hist = stock.history(period="1d")
-        if not hist.empty:
-            current_price = hist['Close'].iloc[-1]
-    try:
-        # 1. 抓取基本資訊 (介紹)
-        info = stock.info
-        summary = info.get('longBusinessSummary', '尚無公司簡介資料。')
-        
-        # 2. 抓取三大報表
-        income_stmt = stock.financials        
-        balance_sheet = stock.balance_sheet   
-        cash_flow = stock.cashflow            
+        # 1. 抓取基本資訊 (加入防護機制，如果抓不到不至於整個崩潰)
+        info = {}
+        try:
+            info = stock.info
+        except:
+            print(f"  警告：無法獲取 {stock_id} 的 info 資料")
+            
+        summary = info.get('longBusinessSummary', '目前無法取得公司簡介。')
+        name = info.get('longName', info.get('shortName', str(stock_id)))
 
-        if income_stmt.empty: return None
+        # 2. 抓取最新股價
+        current_price = 0
+        try:
+            current_price = stock.fast_info['last_price']
+        except:
+            hist = stock.history(period="1d")
+            if not hist.empty:
+                current_price = hist['Close'].iloc[-1]
 
-        # 3. 抓取最新 5 則新聞
-        raw_news = stock.news
+        # 3. 抓取財報 (轉為字典格式)
+        try:
+            income_df = stock.financials.fillna(0).to_dict() if not stock.financials.empty else {}
+            balance_df = stock.balance_sheet.fillna(0).to_dict() if not stock.balance_sheet.empty else {}
+            cash_df = stock.cashflow.fillna(0).to_dict() if not stock.cashflow.empty else {}
+            
+            # 將 datetime key 轉為字串 (YYYY)
+            income_df = {str(k)[:4]: v for k, v in income_df.items()}
+            balance_df = {str(k)[:4]: v for k, v in balance_df.items()}
+            cash_df = {str(k)[:4]: v for k, v in cash_df.items()}
+        except Exception as e:
+            print(f"  警告：無法獲取 {stock_id} 的財報 - {e}")
+            income_df, balance_df, cash_df = {}, {}, {}
+
+        # 4. 抓取新聞與正確解析時間
         news_list = []
-        for item in raw_news[:5]:
-            pub_time = pd.to_datetime(item.get('providerPublishTime', 0), unit='s')
-            pub_time = pub_time + pd.Timedelta(hours=8) 
-            news_list.append({
-                "title": item.get('title', '無標題'),
-                "publisher": item.get('publisher', '未知來源'),
-                "link": item.get('link', '#'),
-                "time": pub_time.strftime('%Y-%m-%d %H:%M')
-            })
+        try:
+            raw_news = stock.news
+            for n in raw_news[:5]: # 取前 5 則
+                pub_time = n.get('providerPublishTime', 0)
+                time_str = datetime.fromtimestamp(pub_time).strftime('%Y-%m-%d %H:%M') if pub_time > 0 else "未知時間"
+                
+                news_list.append({
+                    "title": n.get('title', '無標題'),
+                    "link": n.get('link', '#'),
+                    "publisher": n.get('publisher', '未知來源'),
+                    "time": time_str
+                })
+        except Exception as e:
+            print(f"  警告：無法獲取 {stock_id} 的新聞 - {e}")
 
-        # 4. 打包資料
-        data = {
-            "stock_id": stock_id,
-            "name": info.get('shortName', stock_id),
+        return {
+            "name": name,
+            "summary": summary,
             "currentPrice": current_price,
-            "summary": summary,  # 🚀 新增公司簡介
-            "last_updated": pd.Timestamp.now().strftime('%Y-%m-%d'),
-            "income_statement": format_df(income_stmt),
-            "balance_sheet": format_df(balance_sheet),
-            "cash_flow": format_df(cash_flow),
+            "income_statement": income_df,
+            "balance_sheet": balance_df,
+            "cash_flow": cash_df,
             "news": news_list
         }
-        return data
+
     except Exception as e:
-        print(f"抓取 {stock_id} 錯誤: {e}")
+        print(f"❌ 抓取 {stock_id} 發生嚴重錯誤: {e}")
         return None
 
-def format_df(df):
-    if df.empty: return {}
-    df_t = df.transpose()
-    df_t.index = df_t.index.strftime('%Y') 
-    df_t = df_t.fillna(0) 
-    return df_t.to_dict(orient='index')
-
+# ==========================================
+# 🚀 主程式執行區
+# ==========================================
 if __name__ == "__main__":
     all_data = {}
+    
     for sid in TARGET_STOCKS:
         print(f"正在抓取 {sid} 的完整資料...")
         result = fetch_stock_financials(sid)
-        if result: all_data[sid] = result
-        time.sleep(2)
+        if result:
+            all_data[sid] = result
+            
+        # ⚠️ 關鍵：每次抓完一檔股票，強迫程式暫停 3 秒，避免被 Yahoo 封鎖
+        time.sleep(3) 
 
+    # 存檔
     with open('financial_data.json', 'w', encoding='utf-8') as f:
         json.dump(all_data, f, ensure_ascii=False, indent=4)
-    print("✅ 資料庫升級完成！")
+        
+    print(f"🎉 全部資料抓取完成！共取得 {len(all_data)} 檔股票資料。")
