@@ -67,7 +67,6 @@
                 <button class="sub-menu-btn" onclick="switchTab('income', 'GrossMargin', this)">毛利率 (%)</button>
                 <button class="sub-menu-btn" onclick="switchTab('income', 'NetMargin', this)">淨利率 (%)</button>
                 <button class="sub-menu-btn" onclick="switchTab('income', 'EPS', this)">EPS (每股盈餘)</button>
-                <button class="sub-menu-btn" onclick="switchTab('income', 'PE', this)">本益比 (P/E)</button>
                 <button class="sub-menu-btn" onclick="switchTab('income', 'ROE', this)">ROE (股東權益報酬率)</button>
             </div>
 
@@ -175,15 +174,39 @@
             } else {
                 document.getElementById('stock-name-title').innerText = `${data.name} (${currentSymbol})`;
             }
-            
-            document.getElementById('company-summary').innerText = data.summary || "暫無簡介。";
-            
-            let newsHtml = "目前暫無最新相關新聞。";
-            if (data.news && Array.isArray(data.news) && data.news.length > 0) {
-                newsHtml = data.news.map(n => `<div class="news-item"><a href="${n.link}" target="_blank" class="news-title">${n.title}</a><div class="news-meta">${n.publisher} • ${n.time}</div></div>`).join('');
-            }
-            document.getElementById('news-container').innerHTML = newsHtml;
+    
+    // --- 新增：計算目前真實本益比 (最新股價 / 最新年份 EPS) ---
+    let currentPE_text = "無資料";
+    try {
+        const years = Object.keys(data.income_statement).sort();
+        const latestYear = years[years.length - 1]; // 抓取最新的一年
+        const latestEPS = data.income_statement[latestYear]["Basic EPS"];
+        const currentPrice = data.currentPrice;
+        if (latestEPS > 0 && currentPrice > 0) {
+            const pe = (currentPrice / latestEPS).toFixed(2);
+            currentPE_text = `${pe} 倍 (以 ${latestYear} EPS 計算)`;
         }
+    } catch (e) {
+        console.log("計算本益比失敗", e);
+    }
+    // ----------------------------------------------------
+
+    // 將本益比與最新股價加入到公司簡介卡片中
+    let summaryHtml = `
+        <div style="margin-bottom: 10px;">
+            <strong>最新股價：</strong> ${data.currentPrice ? data.currentPrice.toFixed(2) + ' 元' : '無資料'} <br>
+            <strong>目前本益比 (P/E)：</strong> <span style="color:#e74c3c; font-weight:bold;">${currentPE_text}</span>
+        </div>
+        <div>${data.summary || "暫無簡介。"}</div>
+    `;
+    document.getElementById('company-summary').innerHTML = summaryHtml;
+    
+    let newsHtml = "目前暫無最新相關新聞。";
+    if (data.news && Array.isArray(data.news) && data.news.length > 0) {
+        newsHtml = data.news.map(n => `<div class="news-item"><a href="${n.link}" target="_blank" class="news-title">${n.title}</a><div class="news-meta">${n.publisher} • ${n.time}</div></div>`).join('');
+    }
+    document.getElementById('news-container').innerHTML = newsHtml;
+}
 
         // 核心：動態取得與計算數據 (已加入淨利率與本益比計算)
         function getMetric(data, year, type, subType) {
