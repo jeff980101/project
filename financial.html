@@ -67,6 +67,7 @@
                 <button class="sub-menu-btn" onclick="switchTab('income', 'GrossMargin', this)">毛利率 (%)</button>
                 <button class="sub-menu-btn" onclick="switchTab('income', 'NetMargin', this)">淨利率 (%)</button>
                 <button class="sub-menu-btn" onclick="switchTab('income', 'EPS', this)">EPS (每股盈餘)</button>
+                
                 <button class="sub-menu-btn" onclick="switchTab('income', 'ROE', this)">ROE (股東權益報酬率)</button>
             </div>
 
@@ -167,13 +168,13 @@
         }
 
         function updateUI() {
-            const data = allData[currentSymbol];
-            if(compareSymbol) {
-                const compData = allData[compareSymbol];
-                document.getElementById('stock-name-title').innerText = `${data.name}(${currentSymbol}) ⚔️ VS ⚔️ ${compData.name}(${compareSymbol})`;
-            } else {
-                document.getElementById('stock-name-title').innerText = `${data.name} (${currentSymbol})`;
-            }
+    const data = allData[currentSymbol];
+    if(compareSymbol) {
+        const compData = allData[compareSymbol];
+        document.getElementById('stock-name-title').innerText = `${data.name}(${currentSymbol}) ⚔️ VS ⚔️ ${compData.name}(${compareSymbol})`;
+    } else {
+        document.getElementById('stock-name-title').innerText = `${data.name} (${currentSymbol})`;
+    }
     
     // --- 新增：計算目前真實本益比 (最新股價 / 最新年份 EPS) ---
     let currentPE_text = "無資料";
@@ -316,7 +317,6 @@
                 }
             });
         }
-
         window.onload = init;
     </script>
 </body>
