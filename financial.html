@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>企業財報分析系統</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         /* 基礎樣式設定 */
         body {
@@ -14,7 +17,7 @@
             padding: 0;
         }
 
-        /* 🌟 頂部導覽列樣式 (改為 Flex 排版，讓左右分開) */
+        /* 頂部導覽列樣式 */
         .top-nav {
             background-color: #1a365d;
             color: white;
@@ -47,12 +50,12 @@
             font-size: 1.5rem;
         }
 
-        /* 🌟 頁面主要排版 (側邊欄 + 右側內容) */
+        /* 頁面主要排版 */
         .layout-container {
             max-width: 1400px;
             margin: 2rem auto;
             padding: 0 1rem;
-            display: flex; /* 讓側邊欄跟主內容並排 */
+            display: flex;
             gap: 2rem;
             align-items: flex-start;
         }
@@ -92,8 +95,11 @@
         }
         .sub-menu {
             padding-left: 30px;
-            display: none; /* 預設隱藏 */
+            display: none; 
             margin-bottom: 10px;
+        }
+        .sub-menu.open {
+            display: block;
         }
         .sub-menu-btn {
             display: block;
@@ -107,9 +113,10 @@
             font-size: 14px;
             border-radius: 4px;
         }
-        .sub-menu-btn:hover {
+        .sub-menu-btn:hover, .sub-menu-btn.active {
             color: #2b6cb0;
             background-color: #f7fafc;
+            font-weight: bold;
         }
 
         /* 右側主要內容區塊樣式 */
@@ -120,6 +127,36 @@
             padding: 2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             min-height: 600px;
+        }
+
+        /* 頁籤切換控制 */
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+
+        /* 新聞列表樣式 */
+        .news-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .news-title {
+            font-size: 16px;
+            color: #2b6cb0;
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .news-title:hover {
+            text-decoration: underline;
+        }
+        .news-meta {
+            font-size: 12px;
+            color: #718096;
         }
     </style>
 </head>
@@ -134,7 +171,7 @@
         <div class="search-container" style="display: flex; gap: 20px; align-items: center;">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <label for="searchInput" style="font-size: 14px; font-weight: bold; color: white;">手動輸入：</label>
-                <input type="text" id="searchInput" placeholder="例: 2308" style="padding: 6px 10px; font-size: 14px; border-radius: 4px; border: none; width: 100px; outline: none;">
+                <input type="text" id="searchInput" placeholder="例: 2330" style="padding: 6px 10px; font-size: 14px; border-radius: 4px; border: none; width: 100px; outline: none;">
                 <button onclick="searchStockFromInput()" style="padding: 6px 15px; font-size: 14px; font-weight: bold; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 4px; transition: 0.2s;">查詢</button>
             </div>
         </div>
@@ -161,113 +198,110 @@
         </div>
 
         <div class="main-content" id="mainContentArea">
-            <h2 id="companyTitle">請選擇左上角或搜尋一檔股票</h2>
-            <div id="chartContainer"></div>
-        </div>
+            
+            <div id="section-overview" class="section active">
+                <h2 id="stock-name-title" style="margin-top: 0; color: #2d3748;">請搜尋一檔股票以載入資料</h2>
+                <div id="company-summary" style="line-height: 1.6; color: #4a5568;"></div>
+                
+                <h3 style="margin-top: 2rem; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; color: #2d3748;">📰 最新相關新聞</h3>
+                <div id="news-container"></div>
+            </div>
 
+            <div id="section-chart" class="section">
+                <h2 id="chart-title" style="margin-top: 0; color: #2d3748;">圖表分析</h2>
+                <div style="position: relative; height: 500px; width: 100%;">
+                    <canvas id="financialChart"></canvas>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-</body>
-</html>
     <script>
         let allData = null;
         let chartInstance = null;
-        let currentSymbol = "2330";
+        let currentSymbol = "2330"; // 預設股票
         let compareSymbol = ""; 
 
         async function init() {
             try {
+                // 讀取資料，加入時間戳避免抓到瀏覽器舊快取
                 const resp = await fetch('financial_data.json?' + Date.now());
+                
+                if (!resp.ok) {
+                    throw new Error(`找不到檔案 (HTTP 狀態碼: ${resp.status})`);
+                }
+                
                 allData = await resp.json();
-                updateUI();
+                
+                // 如果一開始有預設的代碼，並且資料庫內有，就更新介面
+                if(allData[currentSymbol]) {
+                    updateUI();
+                } else {
+                    document.getElementById('stock-name-title').innerText = "系統就緒，請手動搜尋股票代碼";
+                }
             } catch (error) {
-                alert("無法讀取 JSON 資料，請確認檔案是否存在。");
+                console.error("讀取資料失敗詳細原因：", error);
+                document.getElementById('stock-name-title').innerText = "❌ 讀取資料失敗";
+                document.getElementById('company-summary').innerHTML = `<p style="color:red;">無法讀取 JSON 資料！<br>1. 請確認 <b>financial_data.json</b> 是否有上傳到 GitHub。<br>2. 請確認檔名大小寫是否完全一致。</p>`;
             }
         }
 
         // ==========================================
-// 當使用者操作「下拉選單」時觸發
-// ==========================================
-function changeStockFromSelect(symbol) {
-    if (!symbol) return;
-    
-    // 清空手動輸入框，避免畫面資訊混淆
-    document.getElementById('searchInput').value = ''; 
-    
-    // 檢查資料庫有沒有這檔股票
-    if (allData[symbol]) {
-        currentSymbol = symbol;
-        updateUI(); // 更新左側基本資料與新聞
-        renderChart('income', 'RevenueNetIncome'); // 預設繪製營收淨利圖
-    } else {
-        alert(`抱歉，目前系統中沒有 ${symbol} 的資料喔！`);
-    }
-}
-
-// ==========================================
-// 當使用者點擊「手動輸入」的查詢按鈕時觸發
-// ==========================================
-function searchStockFromInput() {
-    const symbol = document.getElementById('searchInput').value.trim();
-    
-    if (!symbol) {
-        alert("請輸入股票代碼！");
-        return;
-    }
-    
-    // 檢查資料庫有沒有這檔股票
-    if (allData[symbol]) {
-        currentSymbol = symbol;
-        
-        // 嘗試同步更新下拉選單 (如果輸入的代碼剛好在選單裡，就自動幫他選中)
-        const selectEl = document.getElementById('stockSelect');
-        let foundInSelect = false;
-        for (let i = 0; i < selectEl.options.length; i++) {
-            if (selectEl.options[i].value === symbol) {
-                selectEl.selectedIndex = i;
-                foundInSelect = true;
-                break;
+        // 搜尋股票邏輯
+        // ==========================================
+        function searchStockFromInput() {
+            const symbol = document.getElementById('searchInput').value.trim();
+            if (!symbol) {
+                alert("請輸入股票代碼！");
+                return;
+            }
+            
+            if (allData && allData[symbol]) {
+                currentSymbol = symbol;
+                
+                // 切回概覽頁籤
+                switchTab('overview', 'none', document.querySelector('.menu-btn.active') || document.querySelectorAll('.menu-btn')[0]);
+                
+                // 清除所有子選單的 active 狀態
+                document.querySelectorAll('.sub-menu-btn').forEach(b => b.classList.remove('active'));
+                
+                updateUI(); 
+            } else {
+                alert(`資料庫中目前沒有 ${symbol} 的資料！\n請確認該代碼是否在系統追蹤清單內。`);
             }
         }
-        // 如果輸入的代碼不在下拉選單裡，就把下拉選單歸零
-        if (!foundInSelect) {
-            selectEl.selectedIndex = 0; 
-        }
 
-        updateUI(); // 更新左側基本資料與新聞
-        renderChart('income', 'RevenueNetIncome'); // 預設繪製營收淨利圖
-        
-    } else {
-        alert(`資料庫中目前沒有 ${symbol} 的資料！\n請確認該代碼是否在系統追蹤清單內。`);
-        // 也可以選擇清空輸入框： document.getElementById('searchInput').value = '';
-    }
-}
+        // ==========================================
+        // 介面切換邏輯
+        // ==========================================
         function toggleSubMenu(menuId, btn) {
             const subMenu = document.getElementById(menuId);
             const isOpen = subMenu.classList.contains('open');
-            
             document.querySelectorAll('.sub-menu').forEach(m => m.classList.remove('open'));
             
             if (!isOpen) {
                 subMenu.classList.add('open');
+                // 自動點擊子選單的第一項
                 subMenu.querySelector('.sub-menu-btn').click();
             }
         }
 
         function switchTab(type, subType, btn) {
-            if(btn.classList.contains('menu-btn')) {
+            // 處理按鈕樣式
+            if(btn && btn.classList.contains('menu-btn')) {
                 document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             }
-            
-            if(btn.classList.contains('sub-menu-btn')) {
+            if(btn && btn.classList.contains('sub-menu-btn')) {
                 document.querySelectorAll('.sub-menu-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 
                 document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-                btn.closest('.sidebar').querySelector('[onclick*="sub-income"]').classList.add('active');
+                btn.closest('.sidebar').querySelector('.menu-btn').classList.add('active');
             }
 
+            // 處理區塊顯示隱藏
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             
             if (type === 'overview') {
@@ -279,76 +313,95 @@ function searchStockFromInput() {
             }
         }
 
+        // ==========================================
+        // 更新文字概覽與新聞
+        // ==========================================
         function updateUI() {
-    const data = allData[currentSymbol];
-    if(compareSymbol) {
-        const compData = allData[compareSymbol];
-        document.getElementById('stock-name-title').innerText = `${data.name}(${currentSymbol}) ⚔️ VS ⚔️ ${compData.name}(${compareSymbol})`;
-    } else {
-        document.getElementById('stock-name-title').innerText = `${data.name} (${currentSymbol})`;
-    }
-    
-    // --- 新增：計算目前真實本益比 (最新股價 / 最新年份 EPS) ---
-    let currentPE_text = "無資料";
-    try {
-        const years = Object.keys(data.income_statement).sort();
-        const latestYear = years[years.length - 1]; // 抓取最新的一年
-        const latestEPS = data.income_statement[latestYear]["Basic EPS"];
-        const currentPrice = data.currentPrice;
-        if (latestEPS > 0 && currentPrice > 0) {
-            const pe = (currentPrice / latestEPS).toFixed(2);
-            currentPE_text = `${pe} 倍 (以 ${latestYear} EPS 計算)`;
+            if (!allData || !allData[currentSymbol]) return;
+            const data = allData[currentSymbol];
+            
+            // 1. 更新標題
+            const titleEl = document.getElementById('stock-name-title');
+            if(compareSymbol) {
+                const compData = allData[compareSymbol];
+                titleEl.innerText = `${data.name} (${currentSymbol}) ⚔️ VS ⚔️ ${compData.name} (${compareSymbol})`;
+            } else {
+                titleEl.innerText = `${data.name} (${currentSymbol})`;
+            }
+            
+            // 2. 計算本益比
+            let currentPE_text = "無資料";
+            try {
+                if (data.income_statement) {
+                    const years = Object.keys(data.income_statement).sort();
+                    if (years.length > 0) {
+                        const latestYear = years[years.length - 1]; 
+                        const latestEPS = data.income_statement[latestYear]["Basic EPS"];
+                        const currentPrice = data.currentPrice;
+                        if (latestEPS > 0 && currentPrice > 0) {
+                            const pe = (currentPrice / latestEPS).toFixed(2);
+                            currentPE_text = `${pe} 倍 (以 ${latestYear} EPS 計算)`;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log("計算本益比失敗", e);
+            }
+
+            // 3. 更新簡介
+            const summaryEl = document.getElementById('company-summary');
+            let summaryHtml = `
+                <div style="margin-bottom: 15px; padding: 15px; background: #ebf8fa; border-radius: 6px;">
+                    <div style="font-size: 1.1em; margin-bottom: 5px;">
+                        <strong>最新股價：</strong> ${data.currentPrice ? data.currentPrice.toFixed(2) + ' 元' : '無資料'}
+                    </div>
+                    <div style="font-size: 1.1em;">
+                        <strong>目前本益比 (P/E)：</strong> <span style="color:#e74c3c; font-weight:bold;">${currentPE_text}</span>
+                    </div>
+                </div>
+                <div>${data.summary || "暫無公司簡介資料。"}</div>
+            `;
+            summaryEl.innerHTML = summaryHtml;
+            
+            // 4. 更新新聞
+            const newsEl = document.getElementById('news-container');
+            let newsHtml = "目前暫無最新相關新聞。";
+            if (data.news && Array.isArray(data.news) && data.news.length > 0) {
+                newsHtml = data.news.map(n => `
+                    <div class="news-item">
+                        <a href="${n.link}" target="_blank" class="news-title">${n.title}</a>
+                        <div class="news-meta">${n.publisher} • ${n.time}</div>
+                    </div>
+                `).join('');
+            }
+            newsEl.innerHTML = newsHtml;
         }
-    } catch (e) {
-        console.log("計算本益比失敗", e);
-    }
-    // ----------------------------------------------------
 
-    // 將本益比與最新股價加入到公司簡介卡片中
-    let summaryHtml = `
-        <div style="margin-bottom: 10px;">
-            <strong>最新股價：</strong> ${data.currentPrice ? data.currentPrice.toFixed(2) + ' 元' : '無資料'} <br>
-            <strong>目前本益比 (P/E)：</strong> <span style="color:#e74c3c; font-weight:bold;">${currentPE_text}</span>
-        </div>
-        <div>${data.summary || "暫無簡介。"}</div>
-    `;
-    document.getElementById('company-summary').innerHTML = summaryHtml;
-    
-    let newsHtml = "目前暫無最新相關新聞。";
-    if (data.news && Array.isArray(data.news) && data.news.length > 0) {
-        newsHtml = data.news.map(n => `<div class="news-item"><a href="${n.link}" target="_blank" class="news-title">${n.title}</a><div class="news-meta">${n.publisher} • ${n.time}</div></div>`).join('');
-    }
-    document.getElementById('news-container').innerHTML = newsHtml;
-}
-
-        // 核心：動態取得與計算數據 (已加入淨利率與本益比計算)
+        // ==========================================
+        // 抓取圖表需要的單項數據
+        // ==========================================
         function getMetric(data, year, type, subType) {
             const inc = data.income_statement[year] || {};
             const bal = data.balance_sheet[year] || {};
-            const price = data.currentPrice || 0; // 取得 Python 抓到的最新股價
+            const price = data.currentPrice || 0; 
 
             if (type === 'income') {
                 if (subType === 'RevenueNetIncome') return { main: inc["Total Revenue"] || 0, sub: inc["Net Income"] || 0 };
-                
                 if (subType === 'GrossMargin') {
                     const rev = inc["Total Revenue"] || 0;
                     const gp = inc["Gross Profit"] || 0;
                     return { main: rev ? (gp / rev * 100) : 0 };
                 }
-                
                 if (subType === 'NetMargin') {
                     const rev = inc["Total Revenue"] || 0;
                     const ni = inc["Net Income"] || 0;
                     return { main: rev ? (ni / rev * 100) : 0 };
                 }
-                
                 if (subType === 'EPS') return { main: inc["Basic EPS"] || 0 };
-                
                 if (subType === 'PE') {
                     const eps = inc["Basic EPS"] || 0;
-                    return { main: (eps > 0) ? (price / eps) : 0 }; // 確保 EPS 大於 0 才計算
+                    return { main: (eps > 0) ? (price / eps) : 0 }; 
                 }
-                
                 if (subType === 'ROE') {
                     const ni = inc["Net Income"] || 0;
                     const equity = bal["Stockholders Equity"] || bal["Total Stockholder Equity"] || 0;
@@ -363,16 +416,20 @@ function searchStockFromInput() {
             return { main: 0, sub: 0 };
         }
 
+        // ==========================================
+        // 繪製 Chart.js 圖表
+        // ==========================================
         function renderChart(type, subType) {
+            if (!allData || !allData[currentSymbol]) return;
             const data1 = allData[currentSymbol];
             const data2 = compareSymbol ? allData[compareSymbol] : null; 
             const baseData = type === 'income' ? data1.income_statement : (type === 'balance' ? data1.balance_sheet : data1.cash_flow);
+            
+            if (!baseData) return; 
             const years = Object.keys(baseData).sort();
 
             let title = "";
             let yAxisFormatter = (v) => v; 
-            
-            // 新增：動態設定主副指標的名稱
             let mainLabel = "";
             let subLabel = "";
 
@@ -392,14 +449,11 @@ function searchStockFromInput() {
 
             let datasets = [];
             const vals1 = years.map(y => getMetric(data1, y, type, subType));
-            
-            // 判斷是否為單一指標 (只需要畫一條線/一組長條)
             const singleMetrics = ['GrossMargin', 'NetMargin', 'EPS', 'ROE'];
             
             if (singleMetrics.includes(subType)) {
                 datasets.push({ label: `${currentSymbol} ${title}`, data: vals1.map(v => v.main), backgroundColor: "rgba(54, 162, 235, 0.7)" });
             } else {
-                // 將寫死的「主指標/次指標」換成動態變數 mainLabel 和 subLabel
                 datasets.push({ label: `${currentSymbol} ${mainLabel}`, data: vals1.map(v => v.main), backgroundColor: "rgba(54, 162, 235, 0.7)", order: 2 });
                 datasets.push({ label: `${currentSymbol} ${subLabel}`, data: vals1.map(v => v.sub), type: 'line', borderColor: '#ff6384', borderWidth: 3, fill: false, order: 1 });
             }
@@ -409,13 +463,13 @@ function searchStockFromInput() {
                 if (singleMetrics.includes(subType)) {
                     datasets.push({ label: `${compareSymbol} ${title}`, data: vals2.map(v => v.main), backgroundColor: "rgba(169, 169, 169, 0.7)" });
                 } else {
-                    // 比較對象也套用動態變數
                     datasets.push({ label: `${compareSymbol} ${mainLabel}`, data: vals2.map(v => v.main), backgroundColor: "rgba(169, 169, 169, 0.5)", order: 2 });
                     datasets.push({ label: `${compareSymbol} ${subLabel}`, data: vals2.map(v => v.sub), type: 'line', borderColor: '#ff9f40', borderWidth: 3, fill: false, borderDash: [5, 5], order: 1 });
                 }
             }
 
-            const ctx = document.getElementById('financialChart').getContext('2d');
+            const canvas = document.getElementById('financialChart');
+            const ctx = canvas.getContext('2d');
             if (chartInstance) chartInstance.destroy();
 
             chartInstance = new Chart(ctx, {
@@ -429,6 +483,8 @@ function searchStockFromInput() {
                 }
             });
         }
+        
+        // 網頁載入完成後執行
         window.onload = init;
     </script>
 </body>
