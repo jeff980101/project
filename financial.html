@@ -47,13 +47,25 @@
             <a href="index.html">⬅️ 返回儀表板首頁</a>
             <h1>📈 企業財報分析系統</h1>
         </div>
-        <div class="search-area">
-            <input type="text" id="stockCode" placeholder="主代碼 (例: 2330)" value="2330">
-            <span class="vs-text">VS</span>
-            <input type="text" id="compareCode" placeholder="比較代碼 (選填)" value="">
-            <button onclick="searchStock()" style="padding:10px 20px; background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">查詢比較</button>
-        </div>
+        <div class="search-container" style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+    
+    <div>
+        <label for="stockSelect"><strong>快速選擇：</strong></label>
+        <select id="stockSelect" onchange="changeStockFromSelect(this.value)" style="padding: 6px; font-size: 16px; border-radius: 4px;">
+            <option value="" disabled selected>請選擇追蹤個股...</option>
+            <option value="2330">2330 台積電</option>
+            <option value="2317">2317 鴻海</option>
+            <option value="2454">2454 聯發科</option>
+            </select>
     </div>
+
+    <div>
+        <label for="searchInput"><strong>或手動輸入：</strong></label>
+        <input type="text" id="searchInput" placeholder="例: 2308" style="padding: 6px; font-size: 16px; width: 120px; border-radius: 4px; border: 1px solid #ccc;">
+        <button onclick="searchStockFromInput()" style="padding: 6px 15px; font-size: 16px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 4px;">查詢</button>
+    </div>
+
+</div>
 
     <div class="layout-container">
         <div class="sidebar">
