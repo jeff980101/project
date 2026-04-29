@@ -133,22 +133,12 @@
 
         <div class="search-container" style="display: flex; gap: 20px; align-items: center;">
             <div style="display: flex; align-items: center; gap: 8px;">
-                <label for="stockSelect" style="font-size: 14px; font-weight: bold; color: white;">快速選擇：</label>
-                <select id="stockSelect" onchange="changeStockFromSelect(this.value)" style="padding: 6px 10px; font-size: 14px; border-radius: 4px; border: none; outline: none;">
-                    <option value="" disabled selected>請選擇追蹤個股...</option>
-                    <option value="2330">2330 台積電</option>
-                    <option value="2317">2317 鴻海</option>
-                    <option value="2454">2454 聯發科</option>
-                </select>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <label for="searchInput" style="font-size: 14px; font-weight: bold; color: white;">或手動輸入：</label>
+                <label for="searchInput" style="font-size: 14px; font-weight: bold; color: white;">手動輸入：</label>
                 <input type="text" id="searchInput" placeholder="例: 2308" style="padding: 6px 10px; font-size: 14px; border-radius: 4px; border: none; width: 100px; outline: none;">
                 <button onclick="searchStockFromInput()" style="padding: 6px 15px; font-size: 14px; font-weight: bold; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 4px; transition: 0.2s;">查詢</button>
             </div>
         </div>
-    </div> 
+    </div>
 
     <div class="layout-container">
         
