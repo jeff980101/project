@@ -27,6 +27,11 @@ def fetch_stock_financials(stock_id):
             
         summary = info.get('longBusinessSummary', '目前無法取得公司簡介。')
         name = info.get('longName', info.get('shortName', str(stock_id)))
+        # 👇 [新增區塊] 抓取 PE、ROE、營收 YoY，並處理小數點與轉換為百分比
+        pe = round(info.get('trailingPE', 0), 2) if info.get('trailingPE') else 'N/A'
+        roe = round(info.get('returnOnEquity', 0) * 100, 2) if info.get('returnOnEquity') else 'N/A'
+        yoy = round(info.get('revenueGrowth', 0) * 100, 2) if info.get('revenueGrowth') else 'N/A'
+        # 👆 [新增結束]
 
         # 2. 抓取最新股價
         current_price = 0
@@ -72,6 +77,9 @@ def fetch_stock_financials(stock_id):
             "name": name,
             "summary": summary,
             "currentPrice": current_price,
+            "pe": pe,           # 👈 新增
+            "roe": roe,         # 👈 新增
+            "yoy": yoy,         # 👈 新增
             "income_statement": income_df,
             "balance_sheet": balance_df,
             "cash_flow": cash_df,
