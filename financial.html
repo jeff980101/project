@@ -47,30 +47,31 @@
             <a href="index.html">⬅️ 返回儀表板首頁</a>
             <h1>📈 企業財報分析系統</h1>
         </div>
-        <div class="search-container" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; width: 100%; box-sizing: border-box;">
+
+        
+    <div class="layout-container">
+        <div class="sidebar">
+            <div class="search-container" style="margin-bottom: 25px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
     
-    <div style="display: flex; flex-direction: column; gap: 5px;">
-        <label for="stockSelect" style="font-size: 14px; color: #333;"><strong>快速選擇：</strong></label>
-        <select id="stockSelect" onchange="changeStockFromSelect(this.value)" style="padding: 6px; font-size: 14px; border-radius: 4px; width: 100%; border: 1px solid #ccc;">
-            <option value="" disabled selected>請選擇個股...</option>
+    <div style="margin-bottom: 12px;">
+        <label for="stockSelect" style="font-size: 14px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">快速選擇：</label>
+        <select id="stockSelect" onchange="changeStockFromSelect(this.value)" style="width: 100%; padding: 8px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+            <option value="" disabled selected>請選擇追蹤個股...</option>
             <option value="2330">2330 台積電</option>
             <option value="2317">2317 鴻海</option>
             <option value="2454">2454 聯發科</option>
             </select>
     </div>
 
-    <div style="display: flex; flex-direction: column; gap: 5px;">
-        <label for="searchInput" style="font-size: 14px; color: #333;"><strong>或手動輸入：</strong></label>
-        <div style="display: flex; gap: 5px;">
-            <input type="text" id="searchInput" placeholder="例: 2308" style="padding: 6px; font-size: 14px; flex-grow: 1; border-radius: 4px; border: 1px solid #ccc; width: 100%;">
-            <button onclick="searchStockFromInput()" style="padding: 6px 12px; font-size: 14px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 4px; white-space: nowrap;">查詢</button>
+    <div>
+        <label for="searchInput" style="font-size: 14px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">或手動輸入：</label>
+        <div style="display: flex; gap: 8px;">
+            <input type="text" id="searchInput" placeholder="例: 2308" style="flex-grow: 1; padding: 8px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc; min-width: 0;">
+            <button onclick="searchStockFromInput()" style="padding: 8px 16px; font-size: 14px; font-weight: bold; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 4px; white-space: nowrap; transition: 0.2s;">查詢</button>
         </div>
     </div>
 
 </div>
-        
-    <div class="layout-container">
-        <div class="sidebar">
             <h3 style="color:#666; font-size:14px; margin-bottom:15px;">導覽目次</h3>
             
             <button class="menu-btn active" onclick="switchTab('overview', 'none', this)"><span>🏠 個股概覽與新聞</span></button>
