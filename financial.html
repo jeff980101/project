@@ -124,24 +124,63 @@
             }
         }
 
-        function searchStock() {
-            currentSymbol = document.getElementById('stockCode').value.trim();
-            compareSymbol = document.getElementById('compareCode').value.trim();
+        // ==========================================
+// 當使用者操作「下拉選單」時觸發
+// ==========================================
+function changeStockFromSelect(symbol) {
+    if (!symbol) return;
+    
+    // 清空手動輸入框，避免畫面資訊混淆
+    document.getElementById('searchInput').value = ''; 
+    
+    // 檢查資料庫有沒有這檔股票
+    if (allData[symbol]) {
+        currentSymbol = symbol;
+        updateUI(); // 更新左側基本資料與新聞
+        renderChart('income', 'RevenueNetIncome'); // 預設繪製營收淨利圖
+    } else {
+        alert(`抱歉，目前系統中沒有 ${symbol} 的資料喔！`);
+    }
+}
 
-            if (!allData || !allData[currentSymbol]) {
-                alert(`找不到主股票 ${currentSymbol} 的資料！請確認該代碼是否在清單中。`);
-                return;
+// ==========================================
+// 當使用者點擊「手動輸入」的查詢按鈕時觸發
+// ==========================================
+function searchStockFromInput() {
+    const symbol = document.getElementById('searchInput').value.trim();
+    
+    if (!symbol) {
+        alert("請輸入股票代碼！");
+        return;
+    }
+    
+    // 檢查資料庫有沒有這檔股票
+    if (allData[symbol]) {
+        currentSymbol = symbol;
+        
+        // 嘗試同步更新下拉選單 (如果輸入的代碼剛好在選單裡，就自動幫他選中)
+        const selectEl = document.getElementById('stockSelect');
+        let foundInSelect = false;
+        for (let i = 0; i < selectEl.options.length; i++) {
+            if (selectEl.options[i].value === symbol) {
+                selectEl.selectedIndex = i;
+                foundInSelect = true;
+                break;
             }
-            if (compareSymbol && !allData[compareSymbol]) {
-                alert(`找不到比較對象 ${compareSymbol} 的資料！圖表將僅顯示主股票。`);
-                compareSymbol = ""; 
-                document.getElementById('compareCode').value = "";
-            }
-            
-            switchTab('overview', 'none', document.querySelector('.menu-btn'));
-            updateUI();
+        }
+        // 如果輸入的代碼不在下拉選單裡，就把下拉選單歸零
+        if (!foundInSelect) {
+            selectEl.selectedIndex = 0; 
         }
 
+        updateUI(); // 更新左側基本資料與新聞
+        renderChart('income', 'RevenueNetIncome'); // 預設繪製營收淨利圖
+        
+    } else {
+        alert(`資料庫中目前沒有 ${symbol} 的資料！\n請確認該代碼是否在系統追蹤清單內。`);
+        // 也可以選擇清空輸入框： document.getElementById('searchInput').value = '';
+    }
+}
         function toggleSubMenu(menuId, btn) {
             const subMenu = document.getElementById(menuId);
             const isOpen = subMenu.classList.contains('open');
