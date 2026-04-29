@@ -145,20 +145,20 @@
 
 </body>
     <script>
-        // 非同步函式：負責去讀取 news.json 檔案
+        // 全域變數：用來儲存抓下來的財報資料
+        let allData = null;
+
+        // ==========================================
+        // 1. 抓取新聞資料的函式 (你原本寫得很好，保留)
+        // ==========================================
         async function loadNews() {
             try {
-                // 讀取同一個資料夾底下的 news.json
                 const response = await fetch('news.json');
                 const newsData = await response.json();
                 
-                // 找到網頁中放新聞的 <ul> 標籤
                 const newsList = document.querySelector('.news-list');
-                
-                // 清空原本手寫的假資料
                 newsList.innerHTML = ''; 
                 
-                // 將抓到的新聞一筆一筆塞進網頁裡
                 newsData.forEach(news => {
                     const li = document.createElement('li');
                     li.className = 'news-item';
@@ -170,57 +170,84 @@
                 });
             } catch (error) {
                 console.error("無法載入新聞資料:", error);
-                document.querySelector('.news-list').innerHTML = '<li class="news-item">⚠️ 無法載入最新新聞，請確認 news.json 是否已上傳至 GitHub。</li>';
+                document.querySelector('.news-list').innerHTML = '<li class="news-item">⚠️ 無法載入最新新聞，請確認 news.json 是否存在。</li>';
             }
         }
-        
-        // 當網頁載入完成後，自動執行 loadNews 函式
-        window.onload = loadNews;
+
         // ==========================================
-// 渲染首頁：個股動態表格
-// ==========================================
-function renderDashboardTable() {
-    const tbody = document.getElementById('dashboardTableBody');
-    if (!tbody || !allData) return;
-    
-    // 你想在首頁重點展示的清單與自訂中文簡稱 (解決 Yahoo 常常回傳英文名的問題)
-    const showcaseStocks = [
-        { id: '2330', name: '台積電' },
-        { id: '2454', name: '聯發科' },
-        { id: '2317', name: '鴻海' }
-    ];
-    
-    tbody.innerHTML = ''; // 清空內容
-    
-    showcaseStocks.forEach(item => {
-        const data = allData[item.id];
-        
-        if (data) {
-            const tr = document.createElement('tr');
-            
-            // 處理 YoY 數值的顏色與正負號
-            let yoyHtml = `<td style="padding: 12px;">N/A</td>`;
-            if (data.yoy !== 'N/A') {
-                const isPositive = data.yoy > 0;
-                // 依據截圖：正數用綠色，負數用紅色
-                const color = isPositive ? '#28a745' : '#dc3545'; 
-                const sign = isPositive ? '+' : '';
-                yoyHtml = `<td style="padding: 12px; color: ${color}; font-weight: bold;">${sign}${data.yoy}%</td>`;
+        // 2. 🌟 新增：抓取財報資料的函式
+        // ==========================================
+        async function loadFinancialData() {
+            try {
+                // 加上 Date.now() 避免瀏覽器快取舊資料
+                const response = await fetch('financial_data.json?' + Date.now());
+                allData = await response.json();
+                
+                // ⚠️ 關鍵：資料抓到了，立刻呼叫畫表格的函式！
+                renderDashboardTable(); 
+            } catch (error) {
+                console.error("無法載入財報資料:", error);
+                const tbody = document.getElementById('dashboardTableBody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">⚠️ 無法載入財報資料，請確認 financial_data.json 是否存在。</td></tr>';
             }
-            
-            tr.innerHTML = `
-                <td style="padding: 12px;">${item.id}</td>
-                <td style="padding: 12px;">${item.name}</td>
-                <td style="padding: 12px;">${data.pe !== 'N/A' ? data.pe : '-'}</td>
-                <td style="padding: 12px;">${data.roe !== 'N/A' ? data.roe + '%' : '-'}</td>
-                ${yoyHtml}
-            `;
-            // 如果你的表格原本有加 border-bottom 之類的樣式，可以寫在上面的 td 裡
-            
-            tbody.appendChild(tr);
         }
-    });
-}
+        
+        // ==========================================
+        // 3. 渲染首頁：個股動態表格
+        // ==========================================
+        function renderDashboardTable() {
+            const tbody = document.getElementById('dashboardTableBody');
+            if (!tbody || !allData) return;
+            
+            // 首頁重點展示的清單
+            const showcaseStocks = [
+                { id: '2330', name: '台積電' },
+                { id: '2454', name: '聯發科' },
+                { id: '2317', name: '鴻海' }
+            ];
+            
+            tbody.innerHTML = ''; // 清空內容
+            
+            showcaseStocks.forEach(item => {
+                const data = allData[item.id];
+                
+                if (data) {
+                    const tr = document.createElement('tr');
+                    
+                    // 處理 YoY 數值的顏色與正負號 (你這裡的邏輯原本需要讀取 data.yoy 等直接屬性)
+                    // 備註：請確認你的 financial_data.json 裡面，針對 2330 是否有 yoy, pe, roe 等直接屬性
+                    // 若沒有，可能需要改成 data.income_statement[...] 裡面去算
+                    let yoyHtml = `<td style="padding: 12px;">N/A</td>`;
+                    if (data.yoy !== undefined && data.yoy !== 'N/A') {
+                        const isPositive = data.yoy > 0;
+                        const color = isPositive ? '#28a745' : '#dc3545'; 
+                        const sign = isPositive ? '+' : '';
+                        yoyHtml = `<td style="padding: 12px; color: ${color}; font-weight: bold;">${sign}${data.yoy}%</td>`;
+                    }
+                    
+                    let peValue = (data.pe !== undefined && data.pe !== 'N/A') ? data.pe : '-';
+                    let roeValue = (data.roe !== undefined && data.roe !== 'N/A') ? data.roe + '%' : '-';
+
+                    tr.innerHTML = `
+                        <td style="padding: 12px;">${item.id}</td>
+                        <td style="padding: 12px;">${item.name}</td>
+                        <td style="padding: 12px;">${peValue}</td>
+                        <td style="padding: 12px;">${roeValue}</td>
+                        ${yoyHtml}
+                    `;
+                    
+                    tbody.appendChild(tr);
+                }
+            });
+        }
+
+        // ==========================================
+        // 4. 當網頁載入完成後，同時啟動「新聞」與「財報」的抓取
+        // ==========================================
+        window.onload = () => {
+            loadNews();
+            loadFinancialData();
+        };
     </script>
 </body>
 </html>
