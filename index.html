@@ -119,28 +119,7 @@
                         <th>最新營收 YoY</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>2330</td>
-                        <td>台積電</td>
-                        <td>22.5</td>
-                        <td>28.4%</td>
-                        <td><span style="color: green;">+15.2%</span></td>
-                    </tr>
-                    <tr>
-                        <td>2454</td>
-                        <td>聯發科</td>
-                        <td>18.3</td>
-                        <td>20.1%</td>
-                        <td><span style="color: green;">+8.7%</span></td>
-                    </tr>
-                    <tr>
-                        <td>2317</td>
-                        <td>鴻海</td>
-                        <td>12.1</td>
-                        <td>10.5%</td>
-                        <td><span style="color: red;">-2.1%</span></td>
-                    </tr>
+                <tbody id="dashboardTableBody">
                 </tbody>
             </table>
         </section>
@@ -197,6 +176,51 @@
         
         // 當網頁載入完成後，自動執行 loadNews 函式
         window.onload = loadNews;
+        // ==========================================
+// 渲染首頁：個股動態表格
+// ==========================================
+function renderDashboardTable() {
+    const tbody = document.getElementById('dashboardTableBody');
+    if (!tbody || !allData) return;
+    
+    // 你想在首頁重點展示的清單與自訂中文簡稱 (解決 Yahoo 常常回傳英文名的問題)
+    const showcaseStocks = [
+        { id: '2330', name: '台積電' },
+        { id: '2454', name: '聯發科' },
+        { id: '2317', name: '鴻海' }
+    ];
+    
+    tbody.innerHTML = ''; // 清空內容
+    
+    showcaseStocks.forEach(item => {
+        const data = allData[item.id];
+        
+        if (data) {
+            const tr = document.createElement('tr');
+            
+            // 處理 YoY 數值的顏色與正負號
+            let yoyHtml = `<td style="padding: 12px;">N/A</td>`;
+            if (data.yoy !== 'N/A') {
+                const isPositive = data.yoy > 0;
+                // 依據截圖：正數用綠色，負數用紅色
+                const color = isPositive ? '#28a745' : '#dc3545'; 
+                const sign = isPositive ? '+' : '';
+                yoyHtml = `<td style="padding: 12px; color: ${color}; font-weight: bold;">${sign}${data.yoy}%</td>`;
+            }
+            
+            tr.innerHTML = `
+                <td style="padding: 12px;">${item.id}</td>
+                <td style="padding: 12px;">${item.name}</td>
+                <td style="padding: 12px;">${data.pe !== 'N/A' ? data.pe : '-'}</td>
+                <td style="padding: 12px;">${data.roe !== 'N/A' ? data.roe + '%' : '-'}</td>
+                ${yoyHtml}
+            `;
+            // 如果你的表格原本有加 border-bottom 之類的樣式，可以寫在上面的 td 裡
+            
+            tbody.appendChild(tr);
+        }
+    });
+}
     </script>
 </body>
 </html>
