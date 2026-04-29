@@ -3,76 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>企業財報數據中心 - 進階分析版</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>企業財報分析系統</title>
     <style>
-        body { font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; margin: 0; background-color: #f8f9fa; }
-        .top-nav { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .nav-left a { text-decoration: none; color: #0056b3; font-weight: bold; font-size: 14px; margin-bottom: 5px; display: inline-block; }
-        .nav-left h1 { margin: 0; font-size: 22px; color: #2c3e50; }
-        .layout-container { display: flex; max-width: 1400px; margin: 20px auto; gap: 20px; padding: 0 20px; }
-        
-        .sidebar { width: 260px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .menu-btn { width: 100%; text-align: left; padding: 12px; margin-bottom: 8px; border: 1px solid transparent; background: none; border-radius: 8px; cursor: pointer; transition: 0.3s; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .menu-btn.active { background: #e7f3ff; color: #007bff; border-color: #007bff; font-weight: bold; }
-        .menu-btn:hover:not(.active) { background: #f0f0f0; }
+        /* 基礎樣式設定 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
 
-        .sub-menu { display: none; padding-left: 20px; margin-bottom: 10px; }
-        .sub-menu.open { display: block; }
-        .sub-menu-btn { width: 100%; text-align: left; padding: 8px 12px; margin-bottom: 4px; border: none; background: none; border-radius: 6px; cursor: pointer; color: #555; font-size: 14px; transition: 0.2s; }
-        .sub-menu-btn:hover { background: #f0f0f0; color: #007bff; }
-        .sub-menu-btn.active { color: #007bff; font-weight: bold; background: #e7f3ff; }
+        /* 🌟 頂部導覽列樣式 (改為 Flex 排版，讓左右分開) */
+        .top-nav {
+            background-color: #1a365d;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .nav-left a {
+            color: #90cdf4;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 8px 12px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        .nav-left a:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        .nav-left h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
 
-        .main-content { flex: 1; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .section { display: none; }
-        .section.active { display: block; }
-        
-        .info-card { background: #fdfdfd; padding: 20px; border-left: 5px solid #007bff; margin-bottom: 25px; line-height: 1.8; color: #444; }
-        .news-item { padding: 15px 0; border-bottom: 1px solid #eee; }
-        .news-item:last-child { border-bottom: none; }
-        .news-title { font-weight: bold; font-size: 16px; text-decoration: none; color: #2c3e50; display: block; margin-bottom: 5px; }
-        .news-title:hover { color: #007bff; }
-        .news-meta { font-size: 13px; color: #888; }
-        
-        #financialChart { max-height: 450px; }
-        .search-area { display: flex; gap: 10px; align-items: center; }
-        .search-area input { padding: 10px; border-radius: 6px; border: 1px solid #ddd; width: 150px; }
-        .vs-text { font-weight: bold; color: #888; font-style: italic; }
+        /* 🌟 頁面主要排版 (側邊欄 + 右側內容) */
+        .layout-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: flex; /* 讓側邊欄跟主內容並排 */
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        /* 左側選單樣式 */
+        .sidebar {
+            width: 250px;
+            flex-shrink: 0;
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .menu-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 15px;
+            color: #4a5568;
+            transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+        }
+        .menu-btn:hover {
+            background-color: #edf2f7;
+        }
+        .menu-btn.active {
+            background-color: #e2e8f0;
+            color: #2b6cb0;
+            font-weight: bold;
+        }
+        .sub-menu {
+            padding-left: 30px;
+            display: none; /* 預設隱藏 */
+            margin-bottom: 10px;
+        }
+        .sub-menu-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 8px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #718096;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+        .sub-menu-btn:hover {
+            color: #2b6cb0;
+            background-color: #f7fafc;
+        }
+
+        /* 右側主要內容區塊樣式 */
+        .main-content {
+            flex-grow: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            min-height: 600px;
+        }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
         <div class="nav-left">
-            <a href="index.html">⬅️ 返回儀表板首頁</a>
+            <a href="index.html">⬅️ 返回首頁</a>
             <h1>📈 企業財報分析系統</h1>
         </div>
 
-        
-    <div class="layout-container">
-        <div class="sidebar">
-            <div class="search-container" style="margin-bottom: 25px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-    
-    <div style="margin-bottom: 12px;">
-        <label for="stockSelect" style="font-size: 14px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">快速選擇：</label>
-        <select id="stockSelect" onchange="changeStockFromSelect(this.value)" style="width: 100%; padding: 8px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
-            <option value="" disabled selected>請選擇追蹤個股...</option>
-            <option value="2330">2330 台積電</option>
-            <option value="2317">2317 鴻海</option>
-            <option value="2454">2454 聯發科</option>
-            </select>
-    </div>
+        <div class="search-container" style="display: flex; gap: 20px; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="stockSelect" style="font-size: 14px; font-weight: bold; color: white;">快速選擇：</label>
+                <select id="stockSelect" onchange="changeStockFromSelect(this.value)" style="padding: 6px 10px; font-size: 14px; border-radius: 4px; border: none; outline: none;">
+                    <option value="" disabled selected>請選擇追蹤個股...</option>
+                    <option value="2330">2330 台積電</option>
+                    <option value="2317">2317 鴻海</option>
+                    <option value="2454">2454 聯發科</option>
+                </select>
+            </div>
 
-    <div>
-        <label for="searchInput" style="font-size: 14px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">或手動輸入：</label>
-        <div style="display: flex; gap: 8px;">
-            <input type="text" id="searchInput" placeholder="例: 2308" style="flex-grow: 1; padding: 8px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc; min-width: 0;">
-            <button onclick="searchStockFromInput()" style="padding: 8px 16px; font-size: 14px; font-weight: bold; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 4px; white-space: nowrap; transition: 0.2s;">查詢</button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="searchInput" style="font-size: 14px; font-weight: bold; color: white;">或手動輸入：</label>
+                <input type="text" id="searchInput" placeholder="例: 2308" style="padding: 6px 10px; font-size: 14px; border-radius: 4px; border: none; width: 100px; outline: none;">
+                <button onclick="searchStockFromInput()" style="padding: 6px 15px; font-size: 14px; font-weight: bold; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 4px; transition: 0.2s;">查詢</button>
+            </div>
         </div>
-    </div>
+    </div> 
 
-</div>
-            <h3 style="color:#666; font-size:14px; margin-bottom:15px;">導覽目次</h3>
+    <div class="layout-container">
+        
+        <div class="sidebar">
+            <h3 style="color:#a0aec0; font-size:13px; text-transform: uppercase; margin-bottom:15px; letter-spacing: 1px;">導覽目次</h3>
             
             <button class="menu-btn active" onclick="switchTab('overview', 'none', this)"><span>🏠 個股概覽與新聞</span></button>
             
@@ -82,7 +163,6 @@
                 <button class="sub-menu-btn" onclick="switchTab('income', 'GrossMargin', this)">毛利率 (%)</button>
                 <button class="sub-menu-btn" onclick="switchTab('income', 'NetMargin', this)">淨利率 (%)</button>
                 <button class="sub-menu-btn" onclick="switchTab('income', 'EPS', this)">EPS (每股盈餘)</button>
-                
                 <button class="sub-menu-btn" onclick="switchTab('income', 'ROE', this)">ROE (股東權益報酬率)</button>
             </div>
 
@@ -90,27 +170,15 @@
             <button class="menu-btn" onclick="switchTab('cash', 'none', this)"><span>💵 現金流量表</span></button>
         </div>
 
-        <div class="main-content">
-            <h2 id="stock-name-title">載入中...</h2>
-            
-            <div id="section-overview" class="section active">
-                <h3>🏢 主公司基本介紹</h3>
-                <div id="company-summary" class="info-card">正在讀取簡介...</div>
-                
-                <h3>📰 最新相關新聞</h3>
-                <div id="news-container">正在獲取新聞...</div>
-            </div>
-
-            <div id="section-chart" class="section">
-                <h3 id="chart-title">財務圖表</h3>
-                <p id="chart-desc" style="color:#666;">將游標移至圖表上可查看詳細數字對比。</p>
-                <div style="height: 450px;">
-                    <canvas id="financialChart"></canvas>
-                </div>
-            </div>
+        <div class="main-content" id="mainContentArea">
+            <h2 id="companyTitle">請選擇左上角或搜尋一檔股票</h2>
+            <div id="chartContainer"></div>
         </div>
+
     </div>
 
+</body>
+</html>
     <script>
         let allData = null;
         let chartInstance = null;
