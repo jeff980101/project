@@ -3,7 +3,7 @@
         "name": "Taiwan Semiconductor Manufacturing Company Limited",
         "summary": "Taiwan Semiconductor Manufacturing Company Limited, together with its subsidiaries, manufactures, packages, tests, and sells integrated circuits and other semiconductor devices in Taiwan, China, Europe, the Middle East, Africa, Japan, the United States, and internationally. It provides various wafer fabrication processes, such as processes to manufacture complementary metal- oxide-semiconductor (CMOS) logic, mixed-signal, radio frequency, embedded memory, bipolar CMOS mixed-signal, and others. The company also involved in providing customer and engineering support services; manufacturing of masks; investment in technology start-up companies; research, designing, developing, manufacturing, packaging, testing, and sale of color filters; and investment activities. Its products are used in high performance computing, smartphones, Internet of things, automotive, and digital consumer electronics. Taiwan Semiconductor Manufacturing Company Limited was incorporated in 1987 and is headquartered in Hsinchu City, Taiwan.",
         "currentPrice": 2395.0,
-        "pe": 28.02,
+        "pe": 28.01,
         "roe": 39.97,
         "yoy": 36.0,
         "income_statement": {
@@ -1165,8 +1165,8 @@
         "summary": "Hon Hai Precision Industry Co., Ltd. provides electronic manufacturing services. The company offers consumer electronics, including smartphones, feature phones, wearable devices, televisions, game consoles, set-top boxes, and audio systems; cloud and networking products comprising routers, servers, edge computing, data centers, and satellite communications and other related equipment; electronic computing equipment, such as desktop computers, laptops, tablets, multi-function devices and printers; and connectors, precision optical components, lenses, electronic components, semiconductor products, and automotive electronic parts. It operates in the United States, Singapore, Ireland, Mainland China, Japan, India, Taiwan, Vietnam, Mexico, and internationally. The company was founded in 1974 and is headquartered in New Taipei City, Taiwan.",
         "currentPrice": 259.5,
         "pe": 18.62,
-        "roe": 11.81,
-        "yoy": 28.9,
+        "roe": "N/A",
+        "yoy": 40.8,
         "income_statement": {
             "2025": {
                 "Tax Effect Of Unusual Items": 0.0,
@@ -1928,7 +1928,7 @@
         "name": "MediaTek Inc.",
         "summary": "MediaTek Inc. engages in the research, development, production, manufacture, and marketing of multimedia integrated circuits (ICs) in Taiwan, rest of Asia, and internationally. The company offers multimedia, computer peripherals oriented, consumer-oriented, and other ICs for various applications. It also offers design, test runs, maintenance and repair, and technological consultation services for software and hardware solutions; and sale and delegation patents and circuit layout rights for its ICs products. In addition, the company provides research, marketing, and technical services; intellectual property right management services; and general investing services. The company was incorporated in 1997 and is headquartered in Hsinchu City, Taiwan.",
         "currentPrice": 4210.0,
-        "pe": 66.88,
+        "pe": 67.11,
         "roe": 23.86,
         "yoy": 1.2,
         "income_statement": {
@@ -8296,7 +8296,7 @@
         "name": "Nanya Technology Corporation",
         "summary": "Nanya Technology Corporation research, develops, manufactures, and sells semiconductor products in Taiwan, Japan, Malaysia, China, the United States, Thailand, Germany, Singapore, Poland and internationally. It offers standard dynamic random-access memory (DRAM), low power DRAM, MCP and eMCP, and KGD products, as well as modules; and other memory products and Elixir brands. The company engages in the import and export of its machinery, equipment, and raw materials. Its products have applications in home and entertainment, office and enterprise, mobile and portable, industrial, and automotive. Nanya Technology Corporation was incorporated in 1995 and is headquartered in New Taipei City, Taiwan.",
         "currentPrice": 512.0,
-        "pe": 47.45,
+        "pe": 47.41,
         "roe": "N/A",
         "yoy": 684.2,
         "income_statement": {
@@ -11759,8 +11759,8 @@
         "summary": "E.SUN Financial Holding Company, Ltd., together with its subsidiaries, offers various financial banking products and services in Taiwan. It operates through Corporate Banking Unit; Individual Banking Unit; Overseas Branches and Subsidiaries; and Others segments. The company provides deposits; bills/checks discounting; syndicated loans; domestic remittances; commercial acceptances; domestic letters of credit and guarantees; custodian services and warehousing; rental of safe deposit boxes; and credit card services. It undertakes foreign exchange operations, including import and export negotiations; general inward and outward remittance; foreign currency deposits, loans, and guarantees; and exchange of foreign cash and travelers checks. In addition, the company engages in securities investment, broking short-term bills, trading financial derivatives, wealth management, and trust operations; and acts as an agent for debenture issuance, bill payments and collections, underwriting, gold sales, and National Treasury services, as well as provides fiscal advisories, and corporate bond dealings. Further, it offers consigned trading for local and foreign securities, futures, options, credit, and lending to fulfill varied commodities needs of domestic and overseas clients; specializes in underwriting and distributing securities in primary market, assisting with initial public offerings, listings on the Taipei Exchange (TPEX) and Taiwan Stock Exchange (TWSE), over-the-counter trading, corporate fundraising, mergers and acquisitions, and financial advisory services comprising planning and consulting; and proprietary trading. Additionally, it invests in potential non-TWSE/TPEX foreign and domestic companies; provides management and industry consulting; assistance in fund solicitation, mergers and acquisitions, and strategic cooperation; and guide companies to engage in transformation and restructuring. The company was incorporated in 1992 and is based in Taipei, Taiwan.",
         "currentPrice": 37.650001525878906,
         "pe": 17.76,
-        "roe": 12.99,
-        "yoy": 14.6,
+        "roe": 14.72,
+        "yoy": 34.4,
         "income_statement": {
             "2025": {
                 "Tax Effect Of Unusual Items": 1631291.049573,
@@ -15699,8 +15699,8 @@
         "summary": "Evergreen Marine Corporation (Taiwan) Ltd., together with its subsidiaries, engages in the shipping carrier and agency, container terminal operations, and commercial port area ship repair businesses in Taiwan, North America, Europe, Asia, and internationally. The company provides cargo loading and discharging, terminal, inland transportation, real estate leasing, security, computer system, terminal logistics, leasing storehouse, management consultancy and self-owned property leasing, and container shipping services; inspections of containers at the custom house; storage, repair, and cleaning for containers; agency services dealing with port formalities; and data processing and information technology consulting services. In addition, it manufactures dry steel containers and parts; distributes containers; invests in transportation-related business, and counter yards and port terminals; and invests in and leases operating machinery and equipment of port terminals. Evergreen Marine Corporation (Taiwan) Ltd. was founded in 1968 and is based in Taipei, Taiwan.",
         "currentPrice": 219.0,
         "pe": 9.59,
-        "roe": 8.22,
-        "yoy": -21.3,
+        "roe": 10.17,
+        "yoy": 21.6,
         "income_statement": {
             "2025": {
                 "Tax Effect Of Unusual Items": -11415543.130605,
@@ -19771,8 +19771,8 @@
         "summary": "Nan Ya Plastics Corporation engages in the manufacture and sale of plastic products, polyester fibers, petrochemical products, and electronic materials in Taiwan, China, the United States, and internationally. It provides plastic products, such as PP synthetic paper, adhesives, optical films, outdoor decoration materials, TPU films, synthetic leathers, PU resins, doors, Neuma fire-rated doors and windows, plastic pallets, PVC cling and PE Stectch films, BOPP film, engineering and PVC compounds, unsaturated polyesters, pipes and fittings, rigid sheets, A-PET sheet/rigid films, interior decoration materials, PVC sheets, PVC rigid sheet, injection, decoration and window films, PET films, and PU-DISCs. The company also offers chemicals, including phthalate plasticizers, phthalic anhydride, alcohols, glycols, curing agents, hydrogen peroxide, tetrahydrofuran, butanediol, bisphenol-A, epoxidized soybean oil, stabilizers, liquefied gases, and epoxy. In addition, it offers electronic materials comprising copper clad laminate, glass fabrics, liquid crystal displays, touch panels, copper foils, and PCB inks; and fibers and textiles consisting of draw textured yarn, spin draw yarn, fully oriented yarn, partially oriented yarn, polyester staple fiber, PET resin, polyester film, polyester release film, woven fabric, and knitting fabric. Further, the company provides HV/LV switchgears, cast resin transformers, vacuum contactor switchgears, molds, rollers, and screws and barrels. Its products are used in household items, outdoor sports, transport materials, building materials, coatings, 3C appliances, civil farm, industrial equipment, and other applications. Nan Ya Plastics Corporation was incorporated in 1958 and is headquartered in Kaohsiung, Taiwan.",
         "currentPrice": 207.5,
         "pe": 90.22,
-        "roe": 5.06,
-        "yoy": 4.6,
+        "roe": 12.32,
+        "yoy": 27.3,
         "income_statement": {
             "2025": {
                 "Tax Effect Of Unusual Items": 2531583.417223,
