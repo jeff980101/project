@@ -2807,7 +2807,7 @@
         "name": "Delta Electronics, Inc.",
         "summary": "Delta Electronics, Inc., together with its subsidiaries, provides power and thermal management solutions in Mainland China, the United States, Taiwan, Thailand, and internationally. It operates through Power Electronics, Mobility, Automation, and Infrastructure segments. The company offers inductors, transformer components, networking products, EMI filters, solenoids, current sensing resistors, power modules, and stamping and over molding components; embedded power, adapters, industrial and medical power solutions, industrial battery charging, USB socket outlets, and hydrogen power and high voltage power solutions; and DC brushless and EC fans and blowers, automotive thermal and thermal management solutions, liquid cooling and climate thermal solutions, and indoor air quality products. It also provides EV power electronics, traction, and X-in-1 products. In addition, the company offers drive and power quality, motion, control, robot, and manufacturing equipment, as well as field devices, software, and industrial PCs; and building management and control, indoor air quality, LED lighting, smart surveillance, healthy lighting, and building solutions. Further, it provides telecom power systems, networking and rural electrification system, UPS and data center infrastructure, and power quality products; EV charging, energy storage systems, photovoltaic inverters, energy management, wind power converters, solid state transformers, medium voltage drives, high voltage power, automatic test equipment, and hydrogen energy and fuel cell solutions; and business and education multimedia and high-performance projectors, collaboration and signage solutions, and smart campus solutions, as well as DLP, LED, and LCD video walls. Additionally, it provides consulting services for building management and control solutions. Delta Electronics, Inc. was founded in 1971 and is headquartered in Taipei, Taiwan.",
         "currentPrice": 1750.0,
-        "pe": 55.71,
+        "pe": 55.86,
         "roe": 29.97,
         "yoy": 47.7,
         "income_statement": {
@@ -5992,7 +5992,7 @@
         "name": "United Microelectronics Corporation",
         "summary": "United Microelectronics Corporation operates as a semiconductor wafer foundry in Taiwan, China, Hong Kong, Japan, Korea, the United States, Europe, and internationally. It manufactures and sells integrated circuits. The company offers circuit design; mask tooling; wafer fabrication; and assembly and testing services for communication devices, consumer electronics, computer, and other applications. It also provides venture capital and marketing support; consulting and planning; energy technical; solar engineering integrated design; research and development services; and insurance services. United Microelectronics Corporation was incorporated in 1980 and is headquartered in Hsinchu City, Taiwan.",
         "currentPrice": 116.5,
-        "pe": 17.65,
+        "pe": 17.68,
         "roe": 21.33,
         "yoy": 17.0,
         "income_statement": {
@@ -7163,7 +7163,7 @@
         "name": "ASE Technology Holding Co., Ltd.",
         "summary": "ASE Technology Holding Co., Ltd., together with its subsidiaries, provides semiconductor manufacturing services in the United States, Taiwan, rest of Asia, Europe, and internationally. It operates through Packaging, Testing, and EMS. The company offers semiconductor packaging, interconnect materials production, front-end engineering testing, wafer probing, and final testing services, as well as integrated solutions for EMS (electronic manufacturing services) in relation to computing, peripherals, communications, industrial, automotive, and server applications. It also provides turnkey services, such as packaging, testing, and direct shipment of semiconductors to end users; wire bonding, including lead frame and substrate-based packages; advanced packages; heterogeneous integration; and other test-related services. In addition, the company engages in the leasing of properties; development, construction, sale, and management of real estate properties; management of parking lot; leasing of properties for shopping center; and management of commercial complex services and department store trading activities, as well as offers social, marketing and sales, information software, leasing and investing, and after-sales and sales support services. Further, it engages in the substrates production; investment advisory and warehousing management; design and manufacturing of electronic components and new electronic applications; technical advisory; management, training, and consulting of organization and human resources; projection of plastic; manufacture and sale of antennas, RF amplifiers and wave straps, PCBs, and tuners; and research and development activities. ASE Technology Holding Co., Ltd. was founded in 1984 and is based in Kaohsiung, Taiwan.",
         "currentPrice": 587.0,
-        "pe": 45.02,
+        "pe": 45.05,
         "roe": 17.01,
         "yoy": 26.7,
         "income_statement": {
@@ -9084,7 +9084,7 @@
         "name": "Fubon Financial Holding Co., Ltd.",
         "summary": "Fubon Financial Holding Co., Ltd. provides various financial products and services in Taiwan, Asia, and internationally. It operates through Banking Business, Property Insurance Business, Life Insurance Business, Securities Business, and Others segments. The company offers insurance products, including property, casualty, life, health, accident, fire, transportation, fishing vessel, car, liability, engineering and nuclear, guarantee and letter of credit, and personal and commercial multiple peril insurance, as well as typhoons, floods, and earthquake insurance products. It also provides retail and consumer, corporate, and investment banking services; brokerage, trading, and underwriting services; and investment and financial management, and foreign exchange. In addition, the company offers deposits and loans, trust, bill finance, and credit card services; invests in foreign financial institutions; and insurance brokerage and agent services. Further, it engages in the venture capital, creditor's rights management, stock and futures brokerage, sales of mutual funds, energy technical services, reinsurance business, asset management, stadium management, and sports activities, as well as invests in and manages real estate properties. Fubon Financial Holding Co., Ltd. was founded in 1961 and is based in Taipei, Taiwan.",
         "currentPrice": 134.0,
-        "pe": 16.01,
+        "pe": 15.99,
         "roe": 18.73,
         "yoy": 175.6,
         "income_statement": {
@@ -15710,7 +15710,7 @@
         "name": "Evergreen Marine Corporation (Taiwan) Ltd.",
         "summary": "Evergreen Marine Corporation (Taiwan) Ltd., together with its subsidiaries, engages in the shipping carrier and agency, container terminal operations, and commercial port area ship repair businesses in Taiwan, North America, Europe, Asia, and internationally. The company provides cargo loading and discharging, terminal, inland transportation, real estate leasing, security, computer system, terminal logistics, leasing storehouse, management consultancy and self-owned property leasing, and container shipping services; inspections of containers at the custom house; storage, repair, and cleaning for containers; agency services dealing with port formalities; and data processing and information technology consulting services. In addition, it manufactures dry steel containers and parts; distributes containers; invests in transportation-related business, and counter yards and port terminals; and invests in and leases operating machinery and equipment of port terminals. Evergreen Marine Corporation (Taiwan) Ltd. was founded in 1968 and is based in Taipei, Taiwan.",
         "currentPrice": 251.5,
-        "pe": 11.02,
+        "pe": 11.01,
         "roe": 10.17,
         "yoy": 21.6,
         "income_statement": {
@@ -19764,12 +19764,6 @@
             }
         },
         "news": [
-            {
-                "title": "無標題",
-                "link": "#",
-                "publisher": "未知來源",
-                "time": "未知時間"
-            },
             {
                 "title": "無標題",
                 "link": "#",
